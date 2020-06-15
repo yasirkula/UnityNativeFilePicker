@@ -1,5 +1,7 @@
 # Unity iOS File Picker Plugin
 
+**Forum Thread:** https://forum.unity.com/threads/native-file-picker-for-ios-using-uidocumentpickerviewcontroller-open-source.912890/
+
 **[Support the Developer ☕](https://yasirkula.itch.io/unity3d)**
 
 This plugin helps you import files from *iCloud* and other document providers, or export files to these providers on iOS. It uses **UIDocumentPickerViewController** which has the following requirements:
@@ -29,10 +31,7 @@ There are two ways to set up the plugin on iOS:
 
 **b. Manual Setup for iOS**
 
-- after building the Unity project, open the Xcode project
-- add **MobileCoreServices.framework** to **Link Binary With Libraries** list in **Build Phases**
-- enable **iCloud** in **Capabilities** and make sure that at least one of its *Services* is active
-- if your app uses custom file extensions that are unique to your app (e.g. *.mydata*), add them to the **Exported UTIs** or **Imported UTIs** lists in **Info** (about custom UTIs: https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/understanding_utis/understand_utis_declare/understand_utis_declare.html) (this step is not needed for extensions available in [this list](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html))
+- see: https://github.com/yasirkula/UnityiOSFilePicker/wiki/Manual-Setup-for-iOS
 
 ## HOW TO
 
@@ -69,7 +68,7 @@ There are two ways to set up the plugin on iOS:
 
 The following code has three functions:
 
-- if you click the left one-third of the screen, a single file PDF file is picked
+- if you click the left one-third of the screen, a single PDF file is picked
 - if you click the middle one-third of the screen, one or more JPEG/PNG files are picked
 - if you click the right one-third of the screen, a dummy text file is created and then exported
 
