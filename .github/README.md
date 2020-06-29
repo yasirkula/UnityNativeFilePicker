@@ -1,5 +1,7 @@
 # Unity iOS File Picker Plugin
 
+**Available on Asset Store:** https://assetstore.unity.com/packages/tools/integration/ios-native-file-picker-173238
+
 **Forum Thread:** https://forum.unity.com/threads/native-file-picker-for-ios-using-uidocumentpickerviewcontroller-open-source.912890/
 
 **[Support the Developer ☕](https://yasirkula.itch.io/unity3d)**
