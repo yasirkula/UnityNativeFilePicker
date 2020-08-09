@@ -1,7 +1,6 @@
 {
-  "name": "com.yasirkula.iosfilepicker",
-  "displayName": "iOS File Picker",
-  "version": "1.0.0",
-  "description": "This plugin helps you import files from iCloud and other document providers, or export files to these providers on iOS. It uses UIDocumentPickerViewController which has the following requirements:\r\n\r\n- iOS 8 or later\r\n- an Apple Developer Program account (signing the app with a free account won't work)",
-  "hideInEditor": false
+  "name": "com.yasirkula.nativefilepicker",
+  "displayName": "Native File Picker",
+  "version": "1.2.0",
+  "description": "This plugin helps you import/export files from/to various document providers on Android & iOS. On iOS, it uses UIDocumentPickerViewController which has the following requirements:\r\n\r\n- iOS 8 or later\r\n- an Apple Developer Program account (signing the app with a free account won't work)\r\n\r\nNOTE: Custom file extensions are supported on iOS only."
 }

@@ -1,31 +1,31 @@
 ﻿#if !UNITY_EDITOR && UNITY_IOS
 using UnityEngine;
 
-namespace iOSFilePickerNamespace
+namespace NativeFilePickerNamespace
 {
-	public class iOSFilePickerCallback : MonoBehaviour
+	public class FPResultCallbackiOS : MonoBehaviour
 	{
-		private static iOSFilePickerCallback instance;
+		private static FPResultCallbackiOS instance;
 
-		private iOSFilePicker.FilePickedCallback pickCallback;
-		private iOSFilePicker.MultipleFilesPickedCallback pickCallbackMultiple;
-		private iOSFilePicker.FilesExportedCallback exportCallback;
+		private NativeFilePicker.FilePickedCallback pickCallback;
+		private NativeFilePicker.MultipleFilesPickedCallback pickCallbackMultiple;
+		private NativeFilePicker.FilesExportedCallback exportCallback;
 
 		private float nextBusyCheckTime;
 
 		public static bool IsBusy { get; private set; }
 
 		[System.Runtime.InteropServices.DllImport( "__Internal" )]
-		private static extern int _iOSFilePicker_IsFilePickerBusy();
+		private static extern int _NativeFilePicker_IsFilePickerBusy();
 
-		public static void Initialize( iOSFilePicker.FilePickedCallback pickCallback, iOSFilePicker.MultipleFilesPickedCallback pickCallbackMultiple, iOSFilePicker.FilesExportedCallback exportCallback )
+		public static void Initialize( NativeFilePicker.FilePickedCallback pickCallback, NativeFilePicker.MultipleFilesPickedCallback pickCallbackMultiple, NativeFilePicker.FilesExportedCallback exportCallback )
 		{
 			if( IsBusy )
 				return;
 
 			if( instance == null )
 			{
-				instance = new GameObject( "iOSFilePickerCallback" ).AddComponent<iOSFilePickerCallback>();
+				instance = new GameObject( "FPResultCallbackiOS" ).AddComponent<FPResultCallbackiOS>();
 				DontDestroyOnLoad( instance.gameObject );
 			}
 
@@ -45,7 +45,7 @@ namespace iOSFilePickerNamespace
 				{
 					nextBusyCheckTime = Time.realtimeSinceStartup + 1f;
 
-					if( _iOSFilePicker_IsFilePickerBusy() == 0 )
+					if( _NativeFilePicker_IsFilePickerBusy() == 0 )
 						OnOperationCancelled( null );
 				}
 			}

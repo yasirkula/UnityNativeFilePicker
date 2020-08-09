@@ -6,9 +6,9 @@ using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
 #endif
 
-namespace iOSFilePickerNamespace
+namespace NativeFilePickerNamespace
 {
-	public class iOSFilePickerPostProcessBuild
+	public class NativeFilePickerPostProcessBuild
 	{
 		private const bool ENABLED = false;
 
@@ -39,7 +39,7 @@ namespace iOSFilePickerNamespace
 			// Add declared custom types to Info.plist
 			if( target == BuildTarget.iOS )
 			{
-				iOSFilePickerCustomTypes.TypeHolder[] customTypes = iOSFilePickerCustomTypes.GetCustomTypes();
+				NativeFilePickerCustomTypes.TypeHolder[] customTypes = NativeFilePickerCustomTypes.GetCustomTypes();
 				if( customTypes != null )
 				{
 					string plistPath = Path.Combine( buildPath, "Info.plist" );
@@ -51,7 +51,7 @@ namespace iOSFilePickerNamespace
 
 					for( int i = 0; i < customTypes.Length; i++ )
 					{
-						iOSFilePickerCustomTypes.TypeHolder customType = customTypes[i];
+						NativeFilePickerCustomTypes.TypeHolder customType = customTypes[i];
 						PlistElementArray customTypesArray = GetCustomTypesArray( rootDict, customType.isExported );
 
 						// Don't allow duplicate entries
@@ -100,7 +100,37 @@ namespace iOSFilePickerNamespace
 				pbxProject.AddFile( entitlementsPath, Path.GetFileName( entitlementsPath ) );
 				pbxProject.AddBuildProperty( targetGUID, "OTHER_LDFLAGS", "-framework CloudKit" );
 				pbxProject.AddBuildProperty( targetGUID, "CODE_SIGN_ENTITLEMENTS", entitlementsPath );
-				pbxProject.AddBuildProperty( targetGUID, "PRODUCT_BUNDLE_IDENTIFIER", PlayerSettings.applicationIdentifier );
+
+				File.WriteAllText( pbxProjectPath, pbxProject.WriteToString() );
+			}
+		}
+
+		// Adding PRODUCT_BUNDLE_IDENTIFIER if not exists (if another plugin also fills this value, we must not touch it)
+		[PostProcessBuild( 99 )]
+		public static void OnPostprocessBuild2( BuildTarget target, string buildPath )
+		{
+			if( !ENABLED )
+				return;
+
+			if( target == BuildTarget.iOS )
+			{
+				string pbxProjectPath = PBXProject.GetPBXProjectPath( buildPath );
+
+				PBXProject pbxProject = new PBXProject();
+				pbxProject.ReadFromFile( pbxProjectPath );
+
+#if UNITY_2019_3_OR_NEWER
+				string targetGUID = pbxProject.GetUnityFrameworkTargetGuid();
+#else
+				string targetGUID = pbxProject.TargetGuidByName( PBXProject.GetUnityTargetName() );
+#endif
+
+#if UNITY_2018_2_OR_NEWER
+				if( string.IsNullOrEmpty( pbxProject.GetBuildPropertyForAnyConfig( targetGUID, "PRODUCT_BUNDLE_IDENTIFIER" ) ) )
+					pbxProject.AddBuildProperty( targetGUID, "PRODUCT_BUNDLE_IDENTIFIER", PlayerSettings.applicationIdentifier );
+#else
+				pbxProject.SetBuildProperty( targetGUID, "PRODUCT_BUNDLE_IDENTIFIER", PlayerSettings.applicationIdentifier );
+#endif
 
 				File.WriteAllText( pbxProjectPath, pbxProject.WriteToString() );
 			}

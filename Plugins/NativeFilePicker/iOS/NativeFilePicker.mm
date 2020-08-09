@@ -6,7 +6,7 @@
 extern UIViewController* UnityGetGLViewController();
 #endif
 
-@interface UiOSFilePicker:NSObject
+@interface UNativeFilePicker:NSObject
 + (void)pickFiles:(BOOL)allowMultipleSelection withUTIs:(NSArray<NSString *> *)allowedUTIs;
 + (void)exportFiles:(NSArray<NSURL *> *)paths;
 + (int)canPickMultipleFiles;
@@ -14,7 +14,7 @@ extern UIViewController* UnityGetGLViewController();
 + (char *)convertExtensionToUTI:(NSString *)extension;
 @end
 
-@implementation UiOSFilePicker
+@implementation UNativeFilePicker
 
 static UIDocumentPickerViewController *filePicker;
 static BOOL pickingMultipleFiles;
@@ -133,9 +133,9 @@ static int filePickerState = 0; // 0 -> none, 1 -> showing, 2 -> finished
 				filePath = [self getCString:[urls[0] path]];
 			
 			if( pickingMultipleFiles )
-				UnitySendMessage( "iOSFilePickerCallback", "OnMultipleFilesPicked", filePath );
+				UnitySendMessage( "FPResultCallbackiOS", "OnMultipleFilesPicked", filePath );
 			else
-				UnitySendMessage( "iOSFilePickerCallback", "OnFilePicked", filePath );
+				UnitySendMessage( "FPResultCallbackiOS", "OnFilePicked", filePath );
 		}
 		else
 		{
@@ -143,15 +143,15 @@ static int filePickerState = 0; // 0 -> none, 1 -> showing, 2 -> finished
 			for( int i = 0; i < [urls count]; i++ )
 				[filePaths addObject:[urls[i] path]];
 			
-			UnitySendMessage( "iOSFilePickerCallback", "OnMultipleFilesPicked", [self getCString:[filePaths componentsJoinedByString:@">"]] );
+			UnitySendMessage( "FPResultCallbackiOS", "OnMultipleFilesPicked", [self getCString:[filePaths componentsJoinedByString:@">"]] );
 		}
 	}
 	else if( controller.documentPickerMode == UIDocumentPickerModeExportToService )
 	{
 		if( [urls count] > 0 )
-			UnitySendMessage( "iOSFilePickerCallback", "OnFilesExported", "1" );
+			UnitySendMessage( "FPResultCallbackiOS", "OnFilesExported", "1" );
 		else
-			UnitySendMessage( "iOSFilePickerCallback", "OnFilesExported", "0" );
+			UnitySendMessage( "FPResultCallbackiOS", "OnFilesExported", "0" );
 	}
 	
 	[controller dismissViewControllerAnimated:NO completion:nil];
@@ -160,7 +160,7 @@ static int filePickerState = 0; // 0 -> none, 1 -> showing, 2 -> finished
 + (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller
 {
 	filePicker = nil;
-	UnitySendMessage( "iOSFilePickerCallback", "OnOperationCancelled", "" );
+	UnitySendMessage( "FPResultCallbackiOS", "OnOperationCancelled", "" );
 	
 	[controller dismissViewControllerAnimated:NO completion:nil];
 }
@@ -180,25 +180,25 @@ static int filePickerState = 0; // 0 -> none, 1 -> showing, 2 -> finished
 
 @end
 
-extern "C" void _iOSFilePicker_PickFile( const char* UTIs[], int UTIsCount )
+extern "C" void _NativeFilePicker_PickFile( const char* UTIs[], int UTIsCount )
 {
 	NSMutableArray<NSString *> *allowedUTIs = [NSMutableArray arrayWithCapacity:UTIsCount];
 	for( int i = 0; i < UTIsCount; i++ )
 		[allowedUTIs addObject:[NSString stringWithUTF8String:UTIs[i]]];
 	
-	[UiOSFilePicker pickFiles:NO withUTIs:allowedUTIs];
+	[UNativeFilePicker pickFiles:NO withUTIs:allowedUTIs];
 }
 
-extern "C" void _iOSFilePicker_PickMultipleFiles( const char* UTIs[], int UTIsCount )
+extern "C" void _NativeFilePicker_PickMultipleFiles( const char* UTIs[], int UTIsCount )
 {
 	NSMutableArray<NSString *> *allowedUTIs = [NSMutableArray arrayWithCapacity:UTIsCount];
 	for( int i = 0; i < UTIsCount; i++ )
 		[allowedUTIs addObject:[NSString stringWithUTF8String:UTIs[i]]];
 	
-	[UiOSFilePicker pickFiles:YES withUTIs:allowedUTIs];
+	[UNativeFilePicker pickFiles:YES withUTIs:allowedUTIs];
 }
 
-extern "C" void _iOSFilePicker_ExportFiles( const char* files[], int filesCount )
+extern "C" void _NativeFilePicker_ExportFiles( const char* files[], int filesCount )
 {
 	NSMutableArray<NSURL *> *paths = [NSMutableArray arrayWithCapacity:filesCount];
 	for( int i = 0; i < filesCount; i++ )
@@ -207,20 +207,20 @@ extern "C" void _iOSFilePicker_ExportFiles( const char* files[], int filesCount 
 		[paths addObject:[NSURL fileURLWithPath:filePath]];
 	}
 	
-	[UiOSFilePicker exportFiles:paths];
+	[UNativeFilePicker exportFiles:paths];
 }
 
-extern "C" int _iOSFilePicker_CanPickMultipleFiles()
+extern "C" int _NativeFilePicker_CanPickMultipleFiles()
 {
-	return [UiOSFilePicker canPickMultipleFiles];
+	return [UNativeFilePicker canPickMultipleFiles];
 }
 
-extern "C" int _iOSFilePicker_IsFilePickerBusy()
+extern "C" int _NativeFilePicker_IsFilePickerBusy()
 {
-	return [UiOSFilePicker isFilePickerBusy];
+	return [UNativeFilePicker isFilePickerBusy];
 }
 
-extern "C" char* _iOSFilePicker_ConvertExtensionToUTI( const char* extension )
+extern "C" char* _NativeFilePicker_ConvertExtensionToUTI( const char* extension )
 {
-	return [UiOSFilePicker convertExtensionToUTI:[NSString stringWithUTF8String:extension]];
+	return [UNativeFilePicker convertExtensionToUTI:[NSString stringWithUTF8String:extension]];
 }

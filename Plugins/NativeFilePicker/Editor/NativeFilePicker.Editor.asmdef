@@ -1,5 +1,5 @@
 {
-    "name": "iOSFilePicker.Editor",
+    "name": "NativeFilePicker.Editor",
     "references": [],
     "includePlatforms": [
         "Editor"
