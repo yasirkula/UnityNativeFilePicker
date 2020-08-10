@@ -1,6 +1,6 @@
 # Unity Native File Picker Plugin
 
-**Available on Asset Store:** https://assetstore.unity.com/packages/tools/integration/ios-native-file-picker-173238
+**Available on Asset Store:** https://assetstore.unity.com/packages/tools/integration/native-file-picker-for-android-ios-173238
 
 **Forum Thread:** https://forum.unity.com/threads/native-file-picker-for-android-ios-open-source.912890/
 
