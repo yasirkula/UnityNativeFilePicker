@@ -171,10 +171,13 @@ public static class NativeFilePicker
 
 	public static string ConvertExtensionToFileType( string extension )
 	{
+		if( string.IsNullOrEmpty( extension ) )
+			return null;
+
 #if !UNITY_EDITOR && UNITY_ANDROID
-		return AJC.CallStatic<string>( "GetMimeTypeFromExtension", extension );
+		return AJC.CallStatic<string>( "GetMimeTypeFromExtension", extension.ToLowerInvariant() );
 #elif !UNITY_EDITOR && UNITY_IOS
-		return _NativeFilePicker_ConvertExtensionToUTI( extension );
+		return _NativeFilePicker_ConvertExtensionToUTI( extension.ToLowerInvariant() );
 #else
 		return extension;
 #endif

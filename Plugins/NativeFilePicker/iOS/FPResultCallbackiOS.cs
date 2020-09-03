@@ -58,11 +58,11 @@ namespace NativeFilePickerNamespace
 			if( string.IsNullOrEmpty( path ) )
 				path = null;
 
-			if( pickCallback != null )
-			{
-				pickCallback( path );
-				pickCallback = null;
-			}
+			NativeFilePicker.FilePickedCallback _pickCallback = pickCallback;
+			pickCallback = null;
+
+			if( _pickCallback != null )
+				_pickCallback( path );
 		}
 
 		public void OnMultipleFilesPicked( string paths )
@@ -73,45 +73,44 @@ namespace NativeFilePickerNamespace
 			if( _paths != null && _paths.Length == 0 )
 				_paths = null;
 
-			if( pickCallbackMultiple != null )
-			{
-				pickCallbackMultiple( _paths );
-				pickCallbackMultiple = null;
-			}
+			NativeFilePicker.MultipleFilesPickedCallback _pickCallbackMultiple = pickCallbackMultiple;
+			pickCallbackMultiple = null;
+
+			if( _pickCallbackMultiple != null )
+				_pickCallbackMultiple( _paths );
 		}
 
 		public void OnFilesExported( string message )
 		{
 			IsBusy = false;
 
-			if( exportCallback != null )
-			{
-				exportCallback( message == "1" );
-				exportCallback = null;
-			}
+			NativeFilePicker.FilesExportedCallback _exportCallback = exportCallback;
+			exportCallback = null;
+
+			if( _exportCallback != null )
+				_exportCallback( message == "1" );
 		}
 
 		public void OnOperationCancelled( string message )
 		{
 			IsBusy = false;
 
-			if( pickCallback != null )
-			{
-				pickCallback( null );
-				pickCallback = null;
-			}
+			NativeFilePicker.FilePickedCallback _pickCallback = pickCallback;
+			NativeFilePicker.MultipleFilesPickedCallback _pickCallbackMultiple = pickCallbackMultiple;
+			NativeFilePicker.FilesExportedCallback _exportCallback = exportCallback;
 
-			if( pickCallbackMultiple != null )
-			{
-				pickCallbackMultiple( null );
-				pickCallbackMultiple = null;
-			}
+			pickCallback = null;
+			pickCallbackMultiple = null;
+			exportCallback = null;
 
-			if( exportCallback != null )
-			{
-				exportCallback( false );
-				exportCallback = null;
-			}
+			if( _pickCallback != null )
+				_pickCallback( null );
+
+			if( _pickCallbackMultiple != null )
+				_pickCallbackMultiple( null );
+
+			if( _exportCallback != null )
+				_exportCallback( false );
 		}
 
 		private string[] SplitPaths( string paths )
