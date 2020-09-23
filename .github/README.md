@@ -60,6 +60,23 @@ Make sure that you've set the **Write Permission** to **External (SDCard)** in *
 
 Declare the `WRITE_EXTERNAL_STORAGE` permission manually in your [**Plugins/Android/AndroidManifest.xml** file](https://answers.unity.com/questions/982710/where-is-the-manifest-file-in-unity.html) with the `tools:node="replace"` attribute as follows: `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="replace"/>` (you'll need to add the `xmlns:tools="http://schemas.android.com/tools"` attribute to the `<manifest ...>` element).
 
+Using custom extension on Android , you can add the following line to your `AndroidManifest.xml`.
+```xml
+ 	<intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="file" />
+        <data android:mimeType="*/*" />
+        <data android:pathPattern=".*\\.abc" />
+        <data android:host="*" />
+	</intent-filter>
+```
+Also , Change `fileTypes` to custom MIMEs.
+```csharp
+string[] fileTypes = new string[] { "*/*" };
+```
+
 ## HOW TO
 
 ### A. Importing Files
