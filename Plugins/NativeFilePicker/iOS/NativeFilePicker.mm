@@ -23,7 +23,7 @@ static int filePickerState = 0; // 0 -> none, 1 -> showing, 2 -> finished
 + (void)pickFiles:(BOOL)allowMultipleSelection withUTIs:(NSArray<NSString *> *)allowedUTIs
 {
 	filePicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:allowedUTIs inMode:UIDocumentPickerModeImport];
-	filePicker.delegate = self;
+	filePicker.delegate = (id) self;
 	
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
 	if( [[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] != NSOrderedAscending )
@@ -52,7 +52,7 @@ static int filePickerState = 0; // 0 -> none, 1 -> showing, 2 -> finished
 #endif
 			filePicker = [[UIDocumentPickerViewController alloc] initWithURL:paths[0] inMode:UIDocumentPickerModeExportToService];
 		
-		filePicker.delegate = self;
+		filePicker.delegate = (id) self;
 		
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 		// Show file extensions if possible

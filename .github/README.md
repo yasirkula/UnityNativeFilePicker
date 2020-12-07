@@ -27,7 +27,7 @@ There are 5 ways to install this plugin:
 
 ### Android Setup
 
-Set **Write Permission** to **External (SDCard)** in **Player Settings**. Alternatively, if your app won't be exporting files but instead just importing files, you can add `READ_EXTERNAL_STORAGE` permission to your AndroidManifest.
+If your app will be exporting files, set **Write Permission** to **External (SDCard)** in **Player Settings**.
 
 ### iOS Setup
 

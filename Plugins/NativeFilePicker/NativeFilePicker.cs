@@ -140,9 +140,11 @@ public static class NativeFilePicker
 
 	public static bool CanExportFiles()
 	{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_EDITOR
+		return true;
+#elif UNITY_ANDROID
 		return AJC.CallStatic<bool>( "CanExportFiles" );
-#elif !UNITY_EDITOR && UNITY_IOS
+#elif UNITY_IOS
 		return true;
 #else
 		return false;
@@ -151,9 +153,11 @@ public static class NativeFilePicker
 
 	public static bool CanExportMultipleFiles()
 	{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_EDITOR
+		return true;
+#elif UNITY_ANDROID
 		return AJC.CallStatic<bool>( "CanExportMultipleFiles" );
-#elif !UNITY_EDITOR && UNITY_IOS
+#elif UNITY_IOS
 		return _NativeFilePicker_CanPickMultipleFiles() == 1;
 #else
 		return false;
@@ -193,9 +197,56 @@ public static class NativeFilePicker
 		Permission result = RequestPermission( true );
 		if( result == Permission.Granted && !IsFilePickerBusy() )
 		{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_EDITOR
+			// Accept Android and iOS UTIs when possible, for user's convenience
+			string[] editorFilters = new string[allowedFileTypes.Length * 2];
+			for( int i = 0; i < allowedFileTypes.Length; i++ )
+			{
+				if( allowedFileTypes[i].IndexOf( '*' ) >= 0 )
+				{
+					if( allowedFileTypes[i] == "image/*" )
+					{
+						editorFilters[i * 2] = "Image files";
+						editorFilters[i * 2 + 1] = "png,jpg,jpeg";
+					}
+					else if( allowedFileTypes[i] == "video/*" )
+					{
+						editorFilters[i * 2] = "Video files";
+						editorFilters[i * 2 + 1] = "mp4,mov,wav,avi";
+					}
+					else if( allowedFileTypes[i] == "audio/*" )
+					{
+						editorFilters[i * 2] = "Audio files";
+						editorFilters[i * 2 + 1] = "mp3,aac,flac";
+					}
+					else
+					{
+						editorFilters[i * 2] = "All files";
+						editorFilters[i * 2 + 1] = "*";
+					}
+				}
+				else
+				{
+					editorFilters[i * 2] = allowedFileTypes[i];
+
+					if( allowedFileTypes[i].IndexOf( '/' ) >= 0 ) // Android UTIs like 'image/png'
+						editorFilters[i * 2 + 1] = allowedFileTypes[i].Substring( allowedFileTypes[i].IndexOf( '/' ) + 1 );
+					else if( allowedFileTypes[i].StartsWith( "public." ) ) // iOS UTIs like 'public.png'
+						editorFilters[i * 2 + 1] = allowedFileTypes[i].Substring( 7 );
+					else if( allowedFileTypes[i].IndexOf( '.' ) == 0 ) // Extensions starting with period like '.png'
+						editorFilters[i * 2 + 1] = allowedFileTypes[i].Substring( 1 );
+					else
+						editorFilters[i * 2 + 1] = allowedFileTypes[i];
+				}
+			}
+
+			string pickedFile = UnityEditor.EditorUtility.OpenFilePanelWithFilters( "Select file", "", editorFilters );
+
+			if( callback != null )
+				callback( pickedFile != "" ? pickedFile : null );
+#elif UNITY_ANDROID
 			AJC.CallStatic( "PickFiles", Context, new FPResultCallbackAndroid( callback, null, null ), false, SelectedFilePath, allowedFileTypes, "" );
-#elif !UNITY_EDITOR && UNITY_IOS
+#elif UNITY_IOS
 			FPResultCallbackiOS.Initialize( callback, null, null );
 			_NativeFilePicker_PickFile( allowedFileTypes, allowedFileTypes.Length );
 #else
@@ -243,9 +294,39 @@ public static class NativeFilePicker
 		{
 			if( CanExportFiles() )
 			{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_EDITOR
+				string extension = Path.GetExtension( filePath );
+				if( extension == null )
+					extension = "";
+				else if( extension.IndexOf( '.' ) == 0 )
+					extension = extension.Substring( 1 );
+
+				string destination = UnityEditor.EditorUtility.SaveFilePanel( "Select destination", Path.GetDirectoryName( filePath ), Path.GetFileName( filePath ), extension );
+				if( string.IsNullOrEmpty( destination ) )
+				{
+					if( callback != null )
+						callback( false );
+				}
+				else
+				{
+					try
+					{
+						File.Copy( filePath, destination, true );
+
+						if( callback != null )
+							callback( true );
+					}
+					catch( Exception e )
+					{
+						Debug.LogException( e );
+
+						if( callback != null )
+							callback( false );
+					}
+				}
+#elif UNITY_ANDROID
 				AJC.CallStatic( "ExportFiles", Context, new FPResultCallbackAndroid( null, null, callback ), new string[1] { filePath }, 1 );
-#elif !UNITY_EDITOR && UNITY_IOS
+#elif UNITY_IOS
 				FPResultCallbackiOS.Initialize( null, null, callback );
 				_NativeFilePicker_ExportFiles( new string[1] { filePath }, 1 );
 #endif
@@ -267,9 +348,34 @@ public static class NativeFilePicker
 		{
 			if( CanExportMultipleFiles() )
 			{
-#if !UNITY_EDITOR && UNITY_ANDROID
+#if UNITY_EDITOR
+				string destination = UnityEditor.EditorUtility.OpenFolderPanel( "Select destination", Path.GetDirectoryName( filePaths[0] ), "" );
+				if( string.IsNullOrEmpty( destination ) )
+				{
+					if( callback != null )
+						callback( false );
+				}
+				else
+				{
+					try
+					{
+						for( int i = 0; i < filePaths.Length; i++ )
+							File.Copy( filePaths[i], Path.Combine( destination, Path.GetFileName( filePaths[i] ) ), true );
+
+						if( callback != null )
+							callback( true );
+					}
+					catch( Exception e )
+					{
+						Debug.LogException( e );
+
+						if( callback != null )
+							callback( false );
+					}
+				}
+#elif UNITY_ANDROID
 				AJC.CallStatic( "ExportFiles", Context, new FPResultCallbackAndroid( null, null, callback ), filePaths, filePaths.Length );
-#elif !UNITY_EDITOR && UNITY_IOS
+#elif UNITY_IOS
 				FPResultCallbackiOS.Initialize( null, null, callback );
 				_NativeFilePicker_ExportFiles( filePaths, filePaths.Length );
 #endif

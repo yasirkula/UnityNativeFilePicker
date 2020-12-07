@@ -14,7 +14,7 @@ NOTE: Custom file extensions are supported on iOS only.
 
 
 2. HOW TO
-for Android: set "Write Permission" to "External (SDCard)" in Player Settings
+for Android: if your app will be exporting files, set "Write Permission" to "External (SDCard)" in Player Settings
 for iOS: there are two ways to set up the plugin on iOS:
 
 a. Automated Setup for iOS

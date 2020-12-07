@@ -1,7 +1,8 @@
-﻿#if UNITY_IOS
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
+using UnityEngine;
+#if UNITY_IOS
+using System.Collections.Generic;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
 #endif
@@ -11,6 +12,17 @@ namespace NativeFilePickerNamespace
 	public class NativeFilePickerPostProcessBuild
 	{
 		private const bool ENABLED = false;
+
+		[InitializeOnLoadMethod]
+		public static void ValidatePlugin()
+		{
+			string jarPath = "Assets/Plugins/NativeFilePicker/Android/NativeFilePicker.jar";
+			if( File.Exists( jarPath ) )
+			{
+				Debug.Log( "Deleting obsolete " + jarPath );
+				AssetDatabase.DeleteAsset( jarPath );
+			}
+		}
 
 #if UNITY_IOS
 		private const string ICLOUD_ENTITLEMENTS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
