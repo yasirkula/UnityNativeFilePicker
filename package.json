@@ -2,5 +2,8 @@
   "name": "com.yasirkula.nativefilepicker",
   "displayName": "Native File Picker",
   "version": "1.2.2",
+  "documentationUrl": "https://github.com/yasirkula/UnityNativeFilePicker",
+  "changelogUrl": "https://github.com/yasirkula/UnityNativeFilePicker/releases",
+  "licensesUrl": "https://github.com/yasirkula/UnityNativeFilePicker/blob/master/LICENSE.txt",
   "description": "This plugin helps you import/export files from/to various document providers on Android & iOS. On iOS, it uses UIDocumentPickerViewController which has the following requirements:\r\n\r\n- iOS 8 or later\r\n- an Apple Developer Program account (signing the app with a free account won't work)\r\n\r\nNOTE: Custom file extensions are supported on iOS only."
 }
