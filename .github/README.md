@@ -50,7 +50,7 @@ You can't. The abstraction layers used on each platform deliberately don't retur
 
 - **Can't import/export files, it says "java.lang.ClassNotFoundException: com.yasirkula.unity.NativeFilePicker" in Logcat**
 
-If your project uses ProGuard, try adding the following line to ProGuard filters: `-keep class com.yasirkula.unity.* { *; }`
+If you are sure that your plugin is up-to-date, then enable **Custom Proguard File** option from *Player Settings* and add the following line to that file: `-keep class com.yasirkula.unity.* { *; }`
 
 - **Nothing happens when I try to import/export files on Android**
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using UnityEngine;
-#if !UNITY_EDITOR && ( UNITY_ANDROID || UNITY_IOS )
+#if UNITY_ANDROID || UNITY_IOS
 using NativeFilePickerNamespace;
 #endif
 

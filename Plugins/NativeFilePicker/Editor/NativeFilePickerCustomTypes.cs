@@ -50,7 +50,7 @@ namespace NativeFilePickerNamespace
 				AssetDatabase.SaveAssets();
 				instance = AssetDatabase.LoadAssetAtPath<NativeFilePickerCustomTypes>( INITIAL_SAVE_PATH );
 
-				Debug.Log( "Created NativeFilePickerCustomTypes file at " + INITIAL_SAVE_PATH + ". You can move this file around freely." );
+				Debug.Log( "Created NativeFilePickerCustomTypes file at " + INITIAL_SAVE_PATH + ". You can move this file around freely.", instance );
 			}
 
 			return instance;
