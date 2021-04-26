@@ -11,7 +11,8 @@ namespace NativeFilePickerNamespace
 {
 	public class NativeFilePickerPostProcessBuild
 	{
-		private const bool ENABLED = false;
+		private const bool AUTO_SETUP_FRAMEWORKS = true; // Automatically adds MobileCoreServices and CloudKit frameworks to the generated Xcode project
+		private const bool AUTO_SETUP_ICLOUD = false; // Automatically enables iCloud capability of the generated Xcode project
 
 #if UNITY_IOS
 #if !UNITY_2017_1_OR_NEWER
@@ -78,8 +79,8 @@ namespace NativeFilePickerNamespace
 				}
 			}
 
-			// Rest of the function shouldn't execute unless build post-processing is ENABLED
-			if( !ENABLED )
+			// Rest of the function shouldn't execute unless build post-processing is enabled
+			if( !AUTO_SETUP_FRAMEWORKS && !AUTO_SETUP_ICLOUD )
 				return;
 
 			if( target == BuildTarget.iOS )
@@ -95,32 +96,41 @@ namespace NativeFilePickerNamespace
 				string targetGUID = pbxProject.TargetGuidByName( PBXProject.GetUnityTargetName() );
 #endif
 
-				pbxProject.AddBuildProperty( targetGUID, "OTHER_LDFLAGS", "-framework MobileCoreServices" );
-				pbxProject.AddBuildProperty( targetGUID, "OTHER_LDFLAGS", "-framework CloudKit" );
+				if( AUTO_SETUP_FRAMEWORKS )
+				{
+					pbxProject.AddBuildProperty( targetGUID, "OTHER_LDFLAGS", "-framework MobileCoreServices" );
+					pbxProject.AddBuildProperty( targetGUID, "OTHER_LDFLAGS", "-framework CloudKit" );
+				}
 
 #if !UNITY_2017_1_OR_NEWER
-				// Add iCloud capability (Cloud Build isn't supported)
-				string entitlementsPath = Path.Combine( buildPath, "iCloud.entitlements" );
-				File.WriteAllText( entitlementsPath, ICLOUD_ENTITLEMENTS );
-				pbxProject.AddFile( entitlementsPath, Path.GetFileName( entitlementsPath ) );
-				pbxProject.AddBuildProperty( targetGUID, "CODE_SIGN_ENTITLEMENTS", entitlementsPath );
+				if( AUTO_SETUP_ICLOUD )
+				{
+					// Add iCloud capability without Cloud Build support on 5.6 or earlier
+					string entitlementsPath = Path.Combine( buildPath, "iCloud.entitlements" );
+					File.WriteAllText( entitlementsPath, ICLOUD_ENTITLEMENTS );
+					pbxProject.AddFile( entitlementsPath, Path.GetFileName( entitlementsPath ) );
+					pbxProject.AddBuildProperty( targetGUID, "CODE_SIGN_ENTITLEMENTS", entitlementsPath );
+				}
 #endif
-				
+
 				File.WriteAllText( pbxProjectPath, pbxProject.WriteToString() );
 
 #if UNITY_2017_1_OR_NEWER
-				// Add iCloud capability with Cloud Build support on 2017.1+
+				if( AUTO_SETUP_ICLOUD )
+				{
+					// Add iCloud capability with Cloud Build support on 2017.1+
 #if UNITY_2019_3_OR_NEWER
-				ProjectCapabilityManager manager = new ProjectCapabilityManager( pbxProjectPath, "iCloud.entitlements", "Unity-iPhone" );
+					ProjectCapabilityManager manager = new ProjectCapabilityManager( pbxProjectPath, "iCloud.entitlements", "Unity-iPhone" );
 #else
-				ProjectCapabilityManager manager = new ProjectCapabilityManager( pbxProjectPath, "iCloud.entitlements", PBXProject.GetUnityTargetName() );
+					ProjectCapabilityManager manager = new ProjectCapabilityManager( pbxProjectPath, "iCloud.entitlements", PBXProject.GetUnityTargetName() );
 #endif
 #if UNITY_2018_3_OR_NEWER
-				manager.AddiCloud( false, true, false, true, null );
+					manager.AddiCloud( false, true, false, true, null );
 #else
-				manager.AddiCloud( false, true, true, null );
+					manager.AddiCloud( false, true, true, null );
 #endif
-				manager.WriteToFile();
+					manager.WriteToFile();
+				}
 #endif
 			}
 		}
@@ -129,7 +139,7 @@ namespace NativeFilePickerNamespace
 		[PostProcessBuild( 99 )]
 		public static void OnPostprocessBuild2( BuildTarget target, string buildPath )
 		{
-			if( !ENABLED )
+			if( !AUTO_SETUP_FRAMEWORKS && !AUTO_SETUP_ICLOUD )
 				return;
 
 			if( target == BuildTarget.iOS )

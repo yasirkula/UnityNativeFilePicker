@@ -18,10 +18,11 @@ for Android: if your app will be exporting files, set "Write Permission" to "Ext
 for iOS: there are two ways to set up the plugin on iOS:
 
 a. Automated Setup for iOS
-- set the value of ENABLED to true in NativeFilePickerPostProcessBuild.cs. By default, automated setup is disabled. That's because this plugin uses the iCloud capability and if another plugin uses other capabilities, these plugins will likely conflict with each other. Set this value to true at your own risk
+- set the values of AUTO_SETUP_FRAMEWORKS and AUTO_SETUP_ICLOUD to true in NativeFilePickerPostProcessBuild.cs. By default, automated setup for iCloud is disabled. That's because this plugin uses the iCloud capability and if another plugin uses other capabilities, these plugins may conflict with each other. Set AUTO_SETUP_ICLOUD to true at your own risk
 - if your app uses custom file extensions that are unique to your app (e.g. .mydata), add them to the "Window-NativeFilePicker Custom Types" asset (it has explanatory tooltips). This step works even if the value of ENABLED is set to false (this step is not needed for extensions available in this list: https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html)
 
 b. Manual Setup for iOS
+- set the values of AUTO_SETUP_FRAMEWORKS and AUTO_SETUP_ICLOUD to false in NativeFilePickerPostProcessBuild.cs
 - after building the Unity project, open the Xcode project
 - add MobileCoreServices.framework to Link Binary With Libraries list in Build Phases
 - enable iCloud in Capabilities and make sure that at least one of its Services is active
