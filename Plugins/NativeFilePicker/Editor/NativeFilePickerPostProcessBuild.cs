@@ -1,7 +1,7 @@
-﻿#if UNITY_IOS
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
 using UnityEngine;
+#if UNITY_IOS
 using System.Collections.Generic;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
@@ -9,11 +9,73 @@ using UnityEditor.iOS.Xcode;
 
 namespace NativeFilePickerNamespace
 {
+	[System.Serializable]
+	public class Settings
+	{
+		private const string SAVE_PATH = "ProjectSettings/NativeFilePicker.json";
+
+		public bool AutoSetupFrameworks = true;
+		public bool AutoSetupiCloud = false;
+
+		private static Settings m_instance = null;
+		public static Settings Instance
+		{
+			get
+			{
+				if( m_instance == null )
+				{
+					try
+					{
+						if( File.Exists( SAVE_PATH ) )
+							m_instance = JsonUtility.FromJson<Settings>( File.ReadAllText( SAVE_PATH ) );
+						else
+							m_instance = new Settings();
+					}
+					catch( System.Exception e )
+					{
+						Debug.LogException( e );
+						m_instance = new Settings();
+					}
+				}
+
+				return m_instance;
+			}
+		}
+
+		public void Save()
+		{
+			File.WriteAllText( SAVE_PATH, JsonUtility.ToJson( this, true ) );
+		}
+
+#if UNITY_2018_3_OR_NEWER
+		[SettingsProvider]
+		public static SettingsProvider CreatePreferencesGUI()
+		{
+			return new SettingsProvider( "Project/yasirkula/Native File Picker", SettingsScope.Project )
+			{
+				guiHandler = ( searchContext ) => PreferencesGUI(),
+				keywords = new System.Collections.Generic.HashSet<string>() { "Native", "File", "Picker", "Android", "iOS" }
+			};
+		}
+#endif
+
+#if !UNITY_2018_3_OR_NEWER
+		[PreferenceItem( "Native File Picker" )]
+#endif
+		public static void PreferencesGUI()
+		{
+			EditorGUI.BeginChangeCheck();
+
+			Instance.AutoSetupFrameworks = EditorGUILayout.Toggle( new GUIContent( "Auto Setup Frameworks", "Automatically adds MobileCoreServices and CloudKit frameworks to the generated Xcode project" ), Instance.AutoSetupFrameworks );
+			Instance.AutoSetupiCloud = EditorGUILayout.Toggle( new GUIContent( "Auto Setup iCloud", "Automatically enables iCloud capability of the generated Xcode project" ), Instance.AutoSetupiCloud );
+
+			if( EditorGUI.EndChangeCheck() )
+				Instance.Save();
+		}
+	}
+
 	public class NativeFilePickerPostProcessBuild
 	{
-		private const bool AUTO_SETUP_FRAMEWORKS = true; // Automatically adds MobileCoreServices and CloudKit frameworks to the generated Xcode project
-		private const bool AUTO_SETUP_ICLOUD = false; // Automatically enables iCloud capability of the generated Xcode project
-
 #if UNITY_IOS
 #if !UNITY_2017_1_OR_NEWER
 		private const string ICLOUD_ENTITLEMENTS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
@@ -80,7 +142,7 @@ namespace NativeFilePickerNamespace
 			}
 
 			// Rest of the function shouldn't execute unless build post-processing is enabled
-			if( !AUTO_SETUP_FRAMEWORKS && !AUTO_SETUP_ICLOUD )
+			if( !Settings.Instance.AutoSetupFrameworks && !Settings.Instance.AutoSetupiCloud )
 				return;
 
 			if( target == BuildTarget.iOS )
@@ -96,14 +158,14 @@ namespace NativeFilePickerNamespace
 				string targetGUID = pbxProject.TargetGuidByName( PBXProject.GetUnityTargetName() );
 #endif
 
-				if( AUTO_SETUP_FRAMEWORKS )
+				if( Settings.Instance.AutoSetupFrameworks )
 				{
 					pbxProject.AddBuildProperty( targetGUID, "OTHER_LDFLAGS", "-framework MobileCoreServices" );
 					pbxProject.AddBuildProperty( targetGUID, "OTHER_LDFLAGS", "-framework CloudKit" );
 				}
 
 #if !UNITY_2017_1_OR_NEWER
-				if( AUTO_SETUP_ICLOUD )
+				if( Settings.Instance.AutoSetupiCloud )
 				{
 					// Add iCloud capability without Cloud Build support on 5.6 or earlier
 					string entitlementsPath = Path.Combine( buildPath, "iCloud.entitlements" );
@@ -116,7 +178,7 @@ namespace NativeFilePickerNamespace
 				File.WriteAllText( pbxProjectPath, pbxProject.WriteToString() );
 
 #if UNITY_2017_1_OR_NEWER
-				if( AUTO_SETUP_ICLOUD )
+				if( Settings.Instance.AutoSetupiCloud )
 				{
 					// Add iCloud capability with Cloud Build support on 2017.1+
 #if UNITY_2019_3_OR_NEWER
@@ -139,7 +201,7 @@ namespace NativeFilePickerNamespace
 		[PostProcessBuild( 99 )]
 		public static void OnPostprocessBuild2( BuildTarget target, string buildPath )
 		{
-			if( !AUTO_SETUP_FRAMEWORKS && !AUTO_SETUP_ICLOUD )
+			if( !Settings.Instance.AutoSetupFrameworks && !Settings.Instance.AutoSetupiCloud )
 				return;
 
 			if( target == BuildTarget.iOS )

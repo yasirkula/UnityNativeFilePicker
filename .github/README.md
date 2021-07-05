@@ -35,8 +35,8 @@ There are two ways to set up the plugin on iOS:
 
 **a. Automated Setup for iOS**
 
-- set the values of **AUTO_SETUP_FRAMEWORKS** and **AUTO_SETUP_ICLOUD** to *true* in *NativeFilePickerPostProcessBuild.cs*. By default, automated setup for iCloud is disabled. That's because this plugin uses the *iCloud capability* and if another plugin uses other capabilities, these plugins may conflict with each other. Set *AUTO_SETUP_ICLOUD* to true at your own risk
-- if your app uses custom file extensions that are unique to your app (e.g. *.mydata*), add them to the *Window-NativeFilePicker Custom Types* asset (it has explanatory tooltips). This step works even if the value of *ENABLED* is set to *false* (this step is not needed for extensions available in [this list](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html))
+- set the values of **Auto Setup Frameworks** and **Auto Setup iCloud** to *true* at *Project Settings/yasirkula/Native File Picker*. By default, automated setup for iCloud is disabled. That's because this plugin uses the *iCloud capability* and if another plugin uses other capabilities, these plugins may conflict with each other. Set *Auto Setup iCloud* to true at your own risk
+- if your app uses custom file extensions that are unique to your app (e.g. *.mydata*), add them to the *Window-NativeFilePicker Custom Types* asset (it has explanatory tooltips). This step works even if the values of *Auto Setup Frameworks* and *Auto Setup iCloud* are set to *false* (this step is not needed for extensions available in [this list](https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html))
 
 **b. Manual Setup for iOS**
 
