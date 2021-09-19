@@ -14,6 +14,7 @@ import android.provider.Settings;
 import android.webkit.MimeTypeMap;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class NativeFilePicker
 {
@@ -119,7 +120,10 @@ public class NativeFilePicker
 
 	public static String GetMimeTypeFromExtension( String extension )
 	{
-		String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension( extension );
+		if( extension == null || extension.length() == 0 )
+			return "";
+
+		String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension( extension.toLowerCase( Locale.ENGLISH ) );
 		return mime != null ? mime : "";
 	}
 

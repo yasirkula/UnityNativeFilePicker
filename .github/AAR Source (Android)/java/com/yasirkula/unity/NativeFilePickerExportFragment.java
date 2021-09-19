@@ -79,10 +79,10 @@ public class NativeFilePickerExportFragment extends Fragment
 	{
 		int extensionStart = file.lastIndexOf( '.' );
 		if( extensionStart < 0 || extensionStart == file.length() - 1 )
-			return "*/*";
+			return "application/octet-stream";
 
-		// Credit: https://stackoverflow.com/a/31691791/2373034
-		return MimeTypeMap.getSingleton().getMimeTypeFromExtension( file.substring( extensionStart + 1 ).toLowerCase( Locale.ENGLISH ) );
+		String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension( file.substring( extensionStart + 1 ).toLowerCase( Locale.ENGLISH ) );
+		return ( mimeType == null || mimeType.length() == 0 ) ? "application/octet-stream" : mimeType;
 	}
 
 	@TargetApi( Build.VERSION_CODES.LOLLIPOP )
