@@ -4,6 +4,8 @@
 
 **Forum Thread:** https://forum.unity.com/threads/native-file-picker-for-android-ios-open-source.912890/
 
+**Discord:** https://discord.gg/UJJt549AaV
+
 **[Support the Developer ☕](https://yasirkula.itch.io/unity3d)**
 
 This plugin helps you import/export files from/to various document providers on Android & iOS. On iOS, it uses **UIDocumentPickerViewController** which has the following requirements:
