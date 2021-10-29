@@ -13,11 +13,15 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.webkit.MimeTypeMap;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class NativeFilePicker
 {
+	public static boolean UseDefaultFilePickerApp = false; // false: Intent.createChooser is used to select the file picker app
+
 	public static void PickFiles( Context context, final NativeFilePickerResultReceiver resultReceiver, final boolean selectMultiple, final String savePath, final String[] mimes, final String title )
 	{
 		if( CheckPermission( context, true ) != 1 )

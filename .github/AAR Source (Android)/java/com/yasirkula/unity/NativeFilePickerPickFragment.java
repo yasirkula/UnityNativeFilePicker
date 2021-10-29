@@ -1,27 +1,14 @@
 package com.yasirkula.unity;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.ContentResolver;
-import android.content.ContentUris;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.util.Log;
-import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 /* COMMENTS ON INTENT TYPES
@@ -64,14 +51,11 @@ public class NativeFilePickerPickFragment extends Fragment
 	public static int pickerMode = PICKER_MODE_DEFAULT;
 
 	public static boolean tryPreserveFilenames = true; // When enabled, app's cache will fill more quickly since most of the picked files will have a unique filename (less chance of overwriting old files)
+	public static boolean showProgressbar = true; // When enabled, a progressbar will be displayed while selected file(s) are copied (if necessary) to the destination directory
 
 	private final NativeFilePickerResultReceiver resultReceiver;
 	private boolean selectMultiple;
 	private String savePathDirectory, savePathFilename;
-
-	private ArrayList<String> savedFiles;
-
-	private static String secondaryStoragePath = null;
 
 	public NativeFilePickerPickFragment()
 	{
@@ -136,7 +120,19 @@ public class NativeFilePickerPickFragment extends Fragment
 			if( title != null && title.length() > 0 )
 				intent.putExtra( Intent.EXTRA_TITLE, title );
 
-			startActivityForResult( Intent.createChooser( intent, title ), PICK_FILE_CODE );
+			try
+			{
+				//  MIUI devices have issues with Intent.createChooser on at least Android 11 (#15 and https://stackoverflow.com/questions/67785661/taking-and-picking-photos-on-poco-x3-with-android-11-does-not-work)
+				if( NativeFilePicker.UseDefaultFilePickerApp || ( Build.VERSION.SDK_INT == 30 && NativeFilePickerUtils.IsXiaomiOrMIUI() ) )
+					startActivityForResult( intent, PICK_FILE_CODE );
+				else
+					startActivityForResult( Intent.createChooser( intent, title ), PICK_FILE_CODE );
+			}
+			catch( ActivityNotFoundException e )
+			{
+				Toast.makeText( getActivity(), "No apps can perform this action.", Toast.LENGTH_LONG ).show();
+				onActivityResult( PICK_FILE_CODE, Activity.RESULT_CANCELED, null );
+			}
 		}
 	}
 
@@ -176,386 +172,38 @@ public class NativeFilePickerPickFragment extends Fragment
 		return mimeType + "/" + mimeSubtype;
 	}
 
-	// Credit: https://stackoverflow.com/a/47023265/2373034
-	@TargetApi( Build.VERSION_CODES.JELLY_BEAN_MR2 )
-	private void fetchPathsOfMultipleMedia( ArrayList<String> result, Intent data )
-	{
-		if( data.getClipData() != null )
-		{
-			int count = data.getClipData().getItemCount();
-			for( int i = 0; i < count; i++ )
-				result.add( getPathFromURI( data.getClipData().getItemAt( i ).getUri() ) );
-		}
-		else if( data.getData() != null )
-			result.add( getPathFromURI( data.getData() ) );
-	}
-
-	private String getPathFromURI( Uri uri )
-	{
-		if( uri == null )
-			return null;
-
-		Log.d( "Unity", "Selected media uri: " + uri.toString() );
-
-		String path = getPathFromURIInternal( uri );
-		if( path != null && path.length() > 0 )
-		{
-			// Check if file is accessible
-			FileInputStream inputStream = null;
-			try
-			{
-				inputStream = new FileInputStream( new File( path ) );
-				inputStream.read();
-
-				return path;
-			}
-			catch( Exception e )
-			{
-			}
-			finally
-			{
-				if( inputStream != null )
-				{
-					try
-					{
-						inputStream.close();
-					}
-					catch( Exception e )
-					{
-					}
-				}
-			}
-		}
-
-		// Either file path couldn't be determined or Android 10 restricts our access to the raw filesystem,
-		// copy the file to an accessible temporary location
-		return copyToTempFile( uri );
-	}
-
-	// Credit: https://stackoverflow.com/a/36714242/2373034
-	private String getPathFromURIInternal( Uri uri )
-	{
-		// Android 10 restricts our access to the raw filesystem, file must be copied to an accessible temporary location
-		if( android.os.Build.VERSION.SDK_INT >= 29 && !Environment.isExternalStorageLegacy() )
-			return null;
-
-		String selection = null;
-		String[] selectionArgs = null;
-
-		try
-		{
-			if( Build.VERSION.SDK_INT >= 19 && DocumentsContract.isDocumentUri( getActivity().getApplicationContext(), uri ) )
-			{
-				if( "com.android.externalstorage.documents".equals( uri.getAuthority() ) )
-				{
-					final String docId = DocumentsContract.getDocumentId( uri );
-					final String[] split = docId.split( ":" );
-
-					if( "primary".equalsIgnoreCase( split[0] ) )
-						return Environment.getExternalStorageDirectory() + File.separator + split[1];
-					else if( "raw".equalsIgnoreCase( split[0] ) ) // https://stackoverflow.com/a/51874578/2373034
-						return split[1];
-
-					return getSecondaryStoragePathFor( split[1] );
-				}
-				else if( "com.android.providers.downloads.documents".equals( uri.getAuthority() ) )
-				{
-					final String id = DocumentsContract.getDocumentId( uri );
-					if( id.startsWith( "raw:" ) ) // https://stackoverflow.com/a/51874578/2373034
-						return id.substring( 4 );
-
-					uri = ContentUris.withAppendedId( Uri.parse( "content://downloads/public_downloads" ), Long.valueOf( id ) );
-				}
-				else if( "com.android.providers.media.documents".equals( uri.getAuthority() ) )
-				{
-					final String docId = DocumentsContract.getDocumentId( uri );
-					final String[] split = docId.split( ":" );
-					final String type = split[0];
-					if( "image".equals( type ) )
-						uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-					else if( "video".equals( type ) )
-						uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-					else if( "audio".equals( type ) )
-						uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-					else if( "raw".equals( type ) ) // https://stackoverflow.com/a/51874578/2373034
-						return split[1];
-
-					selection = "_id=?";
-					selectionArgs = new String[] { split[1] };
-				}
-			}
-
-			if( "content".equalsIgnoreCase( uri.getScheme() ) )
-			{
-				String[] projection = { MediaStore.Images.Media.DATA };
-				Cursor cursor = null;
-
-				try
-				{
-					cursor = getActivity().getContentResolver().query( uri, projection, selection, selectionArgs, null );
-					if( cursor != null )
-					{
-						int column_index = cursor.getColumnIndexOrThrow( MediaStore.Images.Media.DATA );
-						if( cursor.moveToFirst() )
-						{
-							String columnValue = cursor.getString( column_index );
-							if( columnValue != null && columnValue.length() > 0 )
-								return columnValue;
-						}
-					}
-				}
-				catch( Exception e )
-				{
-				}
-				finally
-				{
-					if( cursor != null )
-						cursor.close();
-				}
-			}
-			else if( "file".equalsIgnoreCase( uri.getScheme() ) )
-				return uri.getPath();
-
-			// File path couldn't be determined
-			return null;
-		}
-		catch( Exception e )
-		{
-			Log.e( "Unity", "Exception:", e );
-			return null;
-		}
-	}
-
-	private String getSecondaryStoragePathFor( String localPath )
-	{
-		if( secondaryStoragePath == null )
-		{
-			String primaryPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-
-			// Try paths saved at system environments
-			// Credit: https://stackoverflow.com/a/32088396/2373034
-			String strSDCardPath = System.getenv( "SECONDARY_STORAGE" );
-			if( strSDCardPath == null || strSDCardPath.length() == 0 )
-				strSDCardPath = System.getenv( "EXTERNAL_SDCARD_STORAGE" );
-
-			if( strSDCardPath != null && strSDCardPath.length() > 0 )
-			{
-				if( !strSDCardPath.contains( ":" ) )
-					strSDCardPath += ":";
-
-				String[] externalPaths = strSDCardPath.split( ":" );
-				for( int i = 0; i < externalPaths.length; i++ )
-				{
-					String path = externalPaths[i];
-					if( path != null && path.length() > 0 )
-					{
-						File file = new File( path );
-						if( file.exists() && file.isDirectory() && file.canRead() && !file.getAbsolutePath().equalsIgnoreCase( primaryPath ) )
-						{
-							String absolutePath = file.getAbsolutePath() + File.separator + localPath;
-							if( new File( absolutePath ).exists() )
-							{
-								secondaryStoragePath = file.getAbsolutePath();
-								return absolutePath;
-							}
-						}
-					}
-				}
-			}
-
-			// Try most common possible paths
-			// Credit: https://gist.github.com/PauloLuan/4bcecc086095bce28e22
-			String[] possibleRoots = new String[] { "/storage", "/mnt", "/storage/removable",
-					"/removable", "/data", "/mnt/media_rw", "/mnt/sdcard0" };
-			for( String root : possibleRoots )
-			{
-				try
-				{
-					File fileList[] = new File( root ).listFiles();
-					for( File file : fileList )
-					{
-						if( file.exists() && file.isDirectory() && file.canRead() && !file.getAbsolutePath().equalsIgnoreCase( primaryPath ) )
-						{
-							String absolutePath = file.getAbsolutePath() + File.separator + localPath;
-							if( new File( absolutePath ).exists() )
-							{
-								secondaryStoragePath = file.getAbsolutePath();
-								return absolutePath;
-							}
-						}
-					}
-				}
-				catch( Exception e )
-				{
-				}
-			}
-
-			secondaryStoragePath = "_NulL_";
-		}
-		else if( !secondaryStoragePath.equals( "_NulL_" ) )
-			return secondaryStoragePath + File.separator + localPath;
-
-		return null;
-	}
-
-	private String copyToTempFile( Uri uri )
-	{
-		// Credit: https://developer.android.com/training/secure-file-sharing/retrieve-info.html#RetrieveFileInfo
-		ContentResolver resolver = getActivity().getContentResolver();
-		Cursor returnCursor = null;
-		String filename = null;
-
-		try
-		{
-			returnCursor = resolver.query( uri, null, null, null, null );
-			if( returnCursor != null && returnCursor.moveToFirst() )
-				filename = returnCursor.getString( returnCursor.getColumnIndex( OpenableColumns.DISPLAY_NAME ) );
-		}
-		catch( Exception e )
-		{
-			Log.e( "Unity", "Exception:", e );
-		}
-		finally
-		{
-			if( returnCursor != null )
-				returnCursor.close();
-		}
-
-		if( filename == null || filename.length() < 3 )
-			filename = "temp";
-
-		String extension = null;
-		String mime = resolver.getType( uri );
-		if( mime != null )
-		{
-			String mimeExtension = MimeTypeMap.getSingleton().getExtensionFromMimeType( mime );
-			if( mimeExtension != null && mimeExtension.length() > 0 )
-				extension = "." + mimeExtension;
-		}
-
-		if( extension == null )
-		{
-			int filenameExtensionIndex = filename.lastIndexOf( '.' );
-			if( filenameExtensionIndex > 0 && filenameExtensionIndex < filename.length() - 1 )
-				extension = filename.substring( filenameExtensionIndex );
-			else
-				extension = ".tmp";
-		}
-
-		if( !tryPreserveFilenames )
-			filename = savePathFilename;
-		else if( filename.endsWith( extension ) )
-			filename = filename.substring( 0, filename.length() - extension.length() );
-
-		try
-		{
-			InputStream input = resolver.openInputStream( uri );
-			if( input == null )
-				return null;
-
-			String fullName = filename + extension;
-			if( savedFiles != null )
-			{
-				int n = 1;
-				for( int i = 0; i < savedFiles.size(); i++ )
-				{
-					if( savedFiles.get( i ).equals( fullName ) )
-					{
-						n++;
-						fullName = filename + n + extension;
-						i = -1;
-					}
-				}
-			}
-
-			File tempFile = new File( savePathDirectory, fullName );
-			OutputStream output = null;
-			try
-			{
-				output = new FileOutputStream( tempFile, false );
-
-				byte[] buf = new byte[4096];
-				int len;
-				while( ( len = input.read( buf ) ) > 0 )
-				{
-					output.write( buf, 0, len );
-				}
-
-				if( selectMultiple )
-				{
-					if( savedFiles == null )
-						savedFiles = new ArrayList<String>();
-
-					savedFiles.add( fullName );
-				}
-
-				return tempFile.getAbsolutePath();
-			}
-			finally
-			{
-				if( output != null )
-					output.close();
-
-				input.close();
-			}
-		}
-		catch( Exception e )
-		{
-			Log.e( "Unity", "Exception:", e );
-		}
-
-		return null;
-	}
-
 	@Override
 	public void onActivityResult( int requestCode, int resultCode, Intent data )
 	{
 		if( requestCode != PICK_FILE_CODE )
 			return;
 
-		if( !selectMultiple )
+		NativeFilePickerPickResultFragment resultFragment = null;
+
+		if( resultReceiver == null )
+			Log.d( "Unity", "NativeFilePickerPickFragment.resultReceiver became null!" );
+		else if( resultCode != Activity.RESULT_OK || data == null )
 		{
-			String result;
-			if( resultCode != Activity.RESULT_OK || data == null )
-				result = "";
+			if( !selectMultiple )
+				resultReceiver.OnFilePicked( "" );
 			else
-			{
-				result = getPathFromURI( data.getData() );
-				if( result == null )
-					result = "";
-			}
-
-			if( result.length() > 0 && !( new File( result ).exists() ) )
-				result = "";
-
-			if( resultReceiver != null )
-				resultReceiver.OnFilePicked( result );
+				resultReceiver.OnMultipleFilesPicked( "" );
 		}
 		else
 		{
-			ArrayList<String> result = new ArrayList<String>();
-			if( resultCode == Activity.RESULT_OK && data != null )
-				fetchPathsOfMultipleMedia( result, data );
-
-			for( int i = result.size() - 1; i >= 0; i-- )
+			NativeFilePickerPickResultOperation resultOperation = new NativeFilePickerPickResultOperation( getActivity(), resultReceiver, data, selectMultiple, savePathDirectory, savePathFilename );
+			if( showProgressbar )
+				resultFragment = new NativeFilePickerPickResultFragment( resultOperation );
+			else
 			{
-				if( result.get( i ) == null || result.get( i ).length() == 0 || !( new File( result.get( i ) ).exists() ) )
-					result.remove( i );
+				resultOperation.execute();
+				resultOperation.sendResultToUnity();
 			}
-
-			String resultCombined = "";
-			for( int i = 0; i < result.size(); i++ )
-			{
-				if( i == 0 )
-					resultCombined += result.get( i );
-				else
-					resultCombined += ">" + result.get( i );
-			}
-
-			if( resultReceiver != null )
-				resultReceiver.OnMultipleFilesPicked( resultCombined );
 		}
 
-		getFragmentManager().beginTransaction().remove( this ).commit();
+		if( resultFragment == null )
+			getFragmentManager().beginTransaction().remove( this ).commit();
+		else
+			getFragmentManager().beginTransaction().remove( this ).add( 0, resultFragment ).commit();
 	}
 }

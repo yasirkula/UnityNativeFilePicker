@@ -3,12 +3,14 @@ package com.yasirkula.unity;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -71,7 +73,19 @@ public class NativeFilePickerExportFragment extends Fragment
 
 			intent.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION );
 
-			startActivityForResult( Intent.createChooser( intent, "" ), EXPORT_FILE_CODE );
+			try
+			{
+				//  MIUI devices have issues with Intent.createChooser on at least Android 11 (#15 and https://stackoverflow.com/questions/67785661/taking-and-picking-photos-on-poco-x3-with-android-11-does-not-work)
+				if( NativeFilePicker.UseDefaultFilePickerApp || ( Build.VERSION.SDK_INT == 30 && NativeFilePickerUtils.IsXiaomiOrMIUI() ) )
+					startActivityForResult( intent, EXPORT_FILE_CODE );
+				else
+					startActivityForResult( Intent.createChooser( intent, "" ), EXPORT_FILE_CODE );
+			}
+			catch( ActivityNotFoundException e )
+			{
+				Toast.makeText( getActivity(), "No apps can perform this action.", Toast.LENGTH_LONG ).show();
+				onActivityResult( EXPORT_FILE_CODE, Activity.RESULT_CANCELED, null );
+			}
 		}
 	}
 
