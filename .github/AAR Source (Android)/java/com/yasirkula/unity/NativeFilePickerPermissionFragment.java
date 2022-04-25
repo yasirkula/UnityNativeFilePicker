@@ -57,9 +57,10 @@ public class NativeFilePickerPermissionFragment extends Fragment
 		else
 		{
 			boolean readPermissionOnly = getArguments().getBoolean( READ_PERMISSION_ONLY );
-			String[] permissions = readPermissionOnly ? new String[] { Manifest.permission.READ_EXTERNAL_STORAGE } :
-					new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE };
-			requestPermissions( permissions, PERMISSIONS_REQUEST_CODE );
+			if( !readPermissionOnly && Build.VERSION.SDK_INT < 30 )
+				requestPermissions( new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE }, PERMISSIONS_REQUEST_CODE );
+			else
+				requestPermissions( new String[] { Manifest.permission.READ_EXTERNAL_STORAGE }, PERMISSIONS_REQUEST_CODE );
 		}
 	}
 
