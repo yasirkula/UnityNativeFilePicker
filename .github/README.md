@@ -29,7 +29,7 @@ There are 5 ways to install this plugin:
 
 ### Android Setup
 
-If your app will be exporting files, set **Write Permission** to **External (SDCard)** in **Player Settings**.
+NativeFilePicker no longer requires any manual setup on Android.
 
 ### iOS Setup
 

@@ -189,7 +189,7 @@ public static class NativeFilePicker
 	#endregion
 
 	#region Import Functions
-	public static Permission PickFile( FilePickedCallback callback, string[] allowedFileTypes )
+	public static Permission PickFile( FilePickedCallback callback, params string[] allowedFileTypes )
 	{
 		if( allowedFileTypes == null || allowedFileTypes.Length == 0 )
 			throw new ArgumentException( "Parameter 'allowedFileTypes' is null or empty!" );
@@ -258,7 +258,7 @@ public static class NativeFilePicker
 		return result;
 	}
 
-	public static Permission PickMultipleFiles( MultipleFilesPickedCallback callback, string[] allowedFileTypes )
+	public static Permission PickMultipleFiles( MultipleFilesPickedCallback callback, params string[] allowedFileTypes )
 	{
 		if( allowedFileTypes == null || allowedFileTypes.Length == 0 )
 			throw new ArgumentException( "Parameter 'allowedFileTypes' is null or empty!" );

@@ -73,7 +73,7 @@ public class NativeFilePickerPickFragment extends Fragment
 		super.onCreate( savedInstanceState );
 
 		if( resultReceiver == null )
-			getFragmentManager().beginTransaction().remove( this ).commit();
+			onActivityResult( PICK_FILE_CODE, Activity.RESULT_CANCELED, null );
 		else
 		{
 			ArrayList<String> mimes = getArguments().getStringArrayList( MIMES_ID );

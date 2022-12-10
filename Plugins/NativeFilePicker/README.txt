@@ -1,4 +1,4 @@
-= Native File Picker for Android & iOS =
+= Native File Picker for Android & iOS (v1.3.0) =
 
 Online documentation & example code available at: https://github.com/yasirkula/UnityNativeFilePicker
 E-mail: yasirkula@gmail.com

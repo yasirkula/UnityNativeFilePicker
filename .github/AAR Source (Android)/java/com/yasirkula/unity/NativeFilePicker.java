@@ -77,7 +77,7 @@ public class NativeFilePicker
 		if( Build.VERSION.SDK_INT < Build.VERSION_CODES.M )
 			return 1;
 
-		if( context.checkSelfPermission( Manifest.permission.READ_EXTERNAL_STORAGE ) != PackageManager.PERMISSION_GRANTED )
+		if( ( Build.VERSION.SDK_INT < 33 || context.getApplicationInfo().targetSdkVersion < 33 ) && context.checkSelfPermission( Manifest.permission.READ_EXTERNAL_STORAGE ) != PackageManager.PERMISSION_GRANTED )
 			return 0;
 
 		if( !readPermissionOnly && Build.VERSION.SDK_INT < 30 && context.checkSelfPermission( Manifest.permission.WRITE_EXTERNAL_STORAGE ) != PackageManager.PERMISSION_GRANTED )

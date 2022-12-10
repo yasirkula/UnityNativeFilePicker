@@ -45,7 +45,7 @@ public class NativeFilePickerExportFragment extends Fragment
 		super.onCreate( savedInstanceState );
 
 		if( resultReceiver == null )
-			getFragmentManager().beginTransaction().remove( this ).commit();
+			onActivityResult( EXPORT_FILE_CODE, Activity.RESULT_CANCELED, null );
 		else
 		{
 			files = getArguments().getStringArrayList( FILES_ID );
