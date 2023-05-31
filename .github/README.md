@@ -6,7 +6,7 @@
 
 **Discord:** https://discord.gg/UJJt549AaV
 
-**[Support the Developer ☕](https://yasirkula.itch.io/unity3d)**
+**[GitHub Sponsors ☕](https://github.com/sponsors/yasirkula)**
 
 This plugin helps you import/export files from/to various document providers on Android & iOS. On iOS, it uses **UIDocumentPickerViewController** which has the following requirements:
 
