@@ -25,5 +25,22 @@ namespace NativeFilePickerNamespace
 			}
 		}
 	}
+
+	public class FPPermissionCallbackAsyncAndroid : AndroidJavaProxy
+	{
+		private readonly NativeFilePicker.PermissionCallback callback;
+		private readonly FPCallbackHelper callbackHelper;
+
+		public FPPermissionCallbackAsyncAndroid( NativeFilePicker.PermissionCallback callback ) : base( "com.yasirkula.unity.NativeFilePickerPermissionReceiver" )
+		{
+			this.callback = callback;
+			callbackHelper = new GameObject( "FPCallbackHelper" ).AddComponent<FPCallbackHelper>();
+		}
+
+		public void OnPermissionResult( int result )
+		{
+			callbackHelper.CallOnMainThread( () => callback( (NativeFilePicker.Permission) result ) );
+		}
+	}
 }
 #endif

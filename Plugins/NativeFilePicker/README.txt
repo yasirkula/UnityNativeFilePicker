@@ -1,4 +1,4 @@
-= Native File Picker for Android & iOS (v1.3.0) =
+= Native File Picker for Android & iOS (v1.3.1) =
 
 Online documentation & example code available at: https://github.com/yasirkula/UnityNativeFilePicker
 E-mail: yasirkula@gmail.com
@@ -49,6 +49,7 @@ Please see the online documentation for a more in-depth documentation of the Scr
 
 enum NativeFilePicker.Permission { Denied = 0, Granted = 1, ShouldAsk = 2 };
 
+delegate void PermissionCallback( NativeFilePicker.Permission permission );
 delegate void FilePickedCallback( string path );
 delegate void MultipleFilesPickedCallback( string[] paths );
 delegate void FilesExportedCallback( bool success );
@@ -88,8 +89,12 @@ NativeFilePicker.Permission NativeFilePicker.ExportMultipleFiles( string[] fileP
 
 // Importing/exporting files is only possible when permission state is Permission.Granted. Most of the functions request permission internally (and return the result) but you can also check/request the permissions manually
 // On iOS, no permissions are needed and thus, these functions will always return Permission.Granted
-NativeFilePicker.Permission NativeFilePicker.CheckPermission();
-NativeFilePicker.Permission NativeFilePicker.RequestPermission();
+NativeFilePicker.Permission NativeFilePicker.CheckPermission( bool readPermissionOnly = false );
+NativeFilePicker.Permission NativeFilePicker.RequestPermission( bool readPermissionOnly = false );
+
+// Asynchronous variants of RequestPermission. Unlike RequestPermission, these functions don't freeze the app unnecessarily before the permission dialog is displayed. So it's recommended to call these functions instead
+void NativeFilePicker.RequestPermissionAsync( PermissionCallback callback, bool readPermissionOnly = false );
+Task<NativeFilePicker.Permission> NativeFilePicker.RequestPermissionAsync( bool readPermissionOnly = false );
 
 // If permission state is Permission.Denied, user must grant the necessary Storage permission manually from the Settings. This function helps you open the Settings directly from within the app
 void NativeFilePicker.OpenSettings();

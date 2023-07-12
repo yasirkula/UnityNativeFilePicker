@@ -22,7 +22,7 @@ namespace NativeFilePickerNamespace
 
 		public void OnFilePicked( string path )
 		{
-			callbackHelper.CallOnMainThread( () => FilePickCallback( path ) );
+			callbackHelper.CallOnMainThread( () => pickCallback( !string.IsNullOrEmpty( path ) ? path : null ) );
 		}
 
 		public void OnMultipleFilesPicked( string paths )
@@ -56,57 +56,12 @@ namespace NativeFilePickerNamespace
 				result = pathsSplit;
 			}
 
-			callbackHelper.CallOnMainThread( () => FilePickMultipleCallback( result ) );
+			callbackHelper.CallOnMainThread( () => pickCallbackMultiple( ( result != null && result.Length > 0 ) ? result : null ) );
 		}
 
 		public void OnFilesExported( bool result )
 		{
-			callbackHelper.CallOnMainThread( () => FileExportCallback( result ) );
-		}
-
-		private void FilePickCallback( string path )
-		{
-			if( string.IsNullOrEmpty( path ) )
-				path = null;
-
-			try
-			{
-				if( pickCallback != null )
-					pickCallback( path );
-			}
-			finally
-			{
-				Object.Destroy( callbackHelper.gameObject );
-			}
-		}
-
-		private void FilePickMultipleCallback( string[] paths )
-		{
-			if( paths != null && paths.Length == 0 )
-				paths = null;
-
-			try
-			{
-				if( pickCallbackMultiple != null )
-					pickCallbackMultiple( paths );
-			}
-			finally
-			{
-				Object.Destroy( callbackHelper.gameObject );
-			}
-		}
-
-		private void FileExportCallback( bool result )
-		{
-			try
-			{
-				if( exportCallback != null )
-					exportCallback( result );
-			}
-			finally
-			{
-				Object.Destroy( callbackHelper.gameObject );
-			}
+			callbackHelper.CallOnMainThread( () => exportCallback( result ) );
 		}
 	}
 }

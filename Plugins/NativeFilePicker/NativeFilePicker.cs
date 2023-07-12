@@ -1,12 +1,16 @@
 ﻿using System;
 using System.IO;
 using UnityEngine;
+#if UNITY_2018_4_OR_NEWER && !NATIVE_FILE_PICKER_DISABLE_ASYNC_FUNCTIONS
+using System.Threading.Tasks;
+#endif
 #if UNITY_ANDROID || UNITY_IOS
 using NativeFilePickerNamespace;
 #endif
 
 public static class NativeFilePicker
 {
+	public delegate void PermissionCallback( Permission permission );
 	public delegate void FilePickedCallback( string path );
 	public delegate void MultipleFilesPickedCallback( string[] paths );
 	public delegate void FilesExportedCallback( bool success );
@@ -94,6 +98,10 @@ public static class NativeFilePicker
 
 	public static Permission RequestPermission( bool readPermissionOnly = false )
 	{
+		// Don't block the main thread if the permission is already granted
+		if( CheckPermission( readPermissionOnly ) == Permission.Granted )
+			return Permission.Granted;
+
 #if !UNITY_EDITOR && UNITY_ANDROID
 		object threadLock = new object();
 		lock( threadLock )
@@ -117,6 +125,25 @@ public static class NativeFilePicker
 		return Permission.Granted;
 #endif
 	}
+
+	public static void RequestPermissionAsync( PermissionCallback callback, bool readPermissionOnly = false )
+	{
+#if !UNITY_EDITOR && UNITY_ANDROID
+		FPPermissionCallbackAsyncAndroid nativeCallback = new FPPermissionCallbackAsyncAndroid( callback );
+		AJC.CallStatic( "RequestPermission", Context, nativeCallback, readPermissionOnly, (int) Permission.ShouldAsk );
+#else
+		callback( Permission.Granted );
+#endif
+	}
+
+#if UNITY_2018_4_OR_NEWER && !NATIVE_FILE_PICKER_DISABLE_ASYNC_FUNCTIONS
+	public static Task<Permission> RequestPermissionAsync( bool readPermissionOnly = false )
+	{
+		TaskCompletionSource<Permission> tcs = new TaskCompletionSource<Permission>();
+		RequestPermissionAsync( ( permission ) => tcs.SetResult( permission ), readPermissionOnly );
+		return tcs.Task;
+	}
+#endif
 
 	public static void OpenSettings()
 	{

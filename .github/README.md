@@ -97,14 +97,19 @@ All of these functions return a *NativeFilePicker.Permission* value. More detail
 
 Beginning with *6.0 Marshmallow*, Android apps must request runtime permissions before accessing certain services. There are two functions to handle permissions with this plugin:
 
-`NativeFilePicker.Permission NativeFilePicker.CheckPermission()`: checks whether the app has access to the document providers or not.
+`NativeFilePicker.Permission NativeFilePicker.CheckPermission( bool readPermissionOnly = false )`: checks whether the app has access to the document providers or not.
 
 **NativeFilePicker.Permission** is an enum that can take 3 values: 
 - **Granted**: we have the permission to access the document providers
 - **ShouldAsk**: we don't have permission yet, but we can ask the user for permission via *RequestPermission* function (see below). As long as the user doesn't select "Don't ask again" while denying the permission, ShouldAsk is returned
 - **Denied**: we don't have permission and we can't ask the user for permission. In this case, user has to give the permission from Settings. This happens when user selects "Don't ask again" while denying the permission or when user is not allowed to give that permission (parental controls etc.)
 
-`NativeFilePicker.Permission NativeFilePicker.RequestPermission()`: requests permission to access the document providers from the user and returns the result. It is recommended to show a brief explanation before asking the permission so that user understands why the permission is needed and doesn't click Deny or worse, "Don't ask again". Note that the PickFile/PickMultipleFiles and ExportFile/ExportMultipleFiles functions call RequestPermission internally and execute only if the permission is granted (the result of RequestPermission is also returned).
+`NativeFilePicker.Permission NativeFilePicker.RequestPermission( bool readPermissionOnly = false )`: requests permission to access the document providers from the user and returns the result. It is recommended to show a brief explanation before asking the permission so that user understands why the permission is needed and doesn't click Deny or worse, "Don't ask again". Note that the PickFile/PickMultipleFiles and ExportFile/ExportMultipleFiles functions call RequestPermission internally and execute only if the permission is granted (the result of RequestPermission is also returned).
+
+`void NativeFilePicker.RequestPermissionAsync( PermissionCallback callback, bool readPermissionOnly = false )`: Asynchronous variant of *RequestPermission*. Unlike RequestPermission, this function doesn't freeze the app unnecessarily before the permission dialog is displayed. So it's recommended to call this function instead.
+- **PermissionCallback** takes `NativeFilePicker.Permission permission` parameter
+
+`Task<NativeFilePicker.Permission> NativeFilePicker.RequestPermissionAsync( bool readPermissionOnly = false )`: Another asynchronous variant of *RequestPermission* (requires Unity 2018.4 or later).
 
 `NativeFilePicker.OpenSettings()`: opens the settings for this app, from where the user can manually grant the *Storage* permission in case current permission state is *Permission.Denied*.
 
@@ -196,5 +201,13 @@ void Update()
 			Debug.Log( "Permission result: " + permission );
 		}
 	}
+}
+
+// Example code doesn't use this function but it is here for reference. It's recommended to ask for permissions manually using the
+// RequestPermissionAsync methods prior to calling NativeFilePicker functions
+private async void RequestPermissionAsynchronously( bool readPermissionOnly = false )
+{
+	NativeFilePicker.Permission permission = await NativeFilePicker.RequestPermissionAsync( readPermissionOnly );
+	Debug.Log( "Permission result: " + permission );
 }
 ```
