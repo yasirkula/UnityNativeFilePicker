@@ -56,7 +56,7 @@ If you are sure that your plugin is up-to-date, then enable **Custom Proguard Fi
 
 - **ConvertExtensionToFileType("\*") not working**
 
-See: https://forum.unity.com/threads/native-file-picker-for-android-ios-open-source.912890/#post-6751759
+See: https://forum.unity.com/threads/native-file-picker-for-android-ios-open-source.912890/page-3#post-8987518
 
 - **Nothing happens when I try to import/export files on Android**
 
