@@ -54,6 +54,10 @@ You can't. The abstraction layers used on each platform deliberately don't retur
 
 If you are sure that your plugin is up-to-date, then enable **Custom Proguard File** option from *Player Settings* and add the following line to that file: `-keep class com.yasirkula.unity.* { *; }`
 
+- **ConvertExtensionToFileType("\*") not working**
+
+See: https://forum.unity.com/threads/native-file-picker-for-android-ios-open-source.912890/#post-6751759
+
 - **Nothing happens when I try to import/export files on Android**
 
 Make sure that you've set the **Write Permission** to **External (SDCard)** in *Player Settings*.
