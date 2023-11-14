@@ -47,7 +47,7 @@ public class NativeFilePicker
 		final Fragment request = new NativeFilePickerPickFragment( resultReceiver );
 		request.setArguments( bundle );
 
-		( (Activity) context ).getFragmentManager().beginTransaction().add( 0, request ).commit();
+		( (Activity) context ).getFragmentManager().beginTransaction().add( 0, request ).commitAllowingStateLoss();
 	}
 
 	public static void ExportFiles( Context context, final NativeFilePickerResultReceiver resultReceiver, final String[] files, final int dummyParameter ) // Having an array as last parameter can cause Unity to crash
@@ -68,7 +68,7 @@ public class NativeFilePicker
 		final Fragment request = new NativeFilePickerExportFragment( resultReceiver );
 		request.setArguments( bundle );
 
-		( (Activity) context ).getFragmentManager().beginTransaction().add( 0, request ).commit();
+		( (Activity) context ).getFragmentManager().beginTransaction().add( 0, request ).commitAllowingStateLoss();
 	}
 
 	@TargetApi( Build.VERSION_CODES.M )
@@ -107,7 +107,7 @@ public class NativeFilePicker
 		final Fragment request = new NativeFilePickerPermissionFragment( permissionReceiver );
 		request.setArguments( bundle );
 
-		( (Activity) context ).getFragmentManager().beginTransaction().add( 0, request ).commit();
+		( (Activity) context ).getFragmentManager().beginTransaction().add( 0, request ).commitAllowingStateLoss();
 	}
 
 	// Credit: https://stackoverflow.com/a/35456817/2373034

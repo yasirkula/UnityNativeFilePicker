@@ -218,6 +218,6 @@ public class NativeFilePickerExportFragment extends Fragment
 		if( resultReceiver != null )
 			resultReceiver.OnFilesExported( result );
 
-		getFragmentManager().beginTransaction().remove( this ).commit();
+		getFragmentManager().beginTransaction().remove( this ).commitAllowingStateLoss();
 	}
 }

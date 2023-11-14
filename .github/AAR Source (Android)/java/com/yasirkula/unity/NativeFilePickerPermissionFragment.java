@@ -76,7 +76,7 @@ public class NativeFilePickerPermissionFragment extends Fragment
 		{
 			Log.e( "Unity", "Fragment data got reset while asking permissions!" );
 
-			getFragmentManager().beginTransaction().remove( this ).commit();
+			getFragmentManager().beginTransaction().remove( this ).commitAllowingStateLoss();
 			return;
 		}
 
@@ -104,7 +104,7 @@ public class NativeFilePickerPermissionFragment extends Fragment
 		}
 
 		permissionReceiver.OnPermissionResult( result );
-		getFragmentManager().beginTransaction().remove( this ).commit();
+		getFragmentManager().beginTransaction().remove( this ).commitAllowingStateLoss();
 
 		// Resolves a bug in Unity 2019 where the calling activity
 		// doesn't resume automatically after the fragment finishes
