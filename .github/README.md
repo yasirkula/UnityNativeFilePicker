@@ -130,7 +130,7 @@ Beginning with *6.0 Marshmallow*, Android apps must request runtime permissions 
 
 `bool NativeFilePicker.IsFilePickerBusy()`: returns *true* if the user is currently importing/exporting files. In that case, another *PickFile*, *PickMultipleFiles*, *ExportFile* or *ExportMultipleFiles* request will simply be ignored.
 
-`string NativeFilePicker.ConvertExtensionToFileType( string extension )`: converts a file extension to its corresponding *MIME* on Android and *UTI* on iOS (don't include the period in extension, i.e. use *png* instead of *.png*).
+`string NativeFilePicker.ConvertExtensionToFileType( string extension )`: converts a file extension to its corresponding *MIME* on Android and *UTI* on iOS (don't include the period in extension, i.e. use *png* instead of *.png*). Throws an exception if "\*" or "\*/\*" is passed to *extension* (to allow all file types, don't pass anything to *PickFile* function's *allowedFileTypes* parameter).
 
 ## EXAMPLE CODE
 

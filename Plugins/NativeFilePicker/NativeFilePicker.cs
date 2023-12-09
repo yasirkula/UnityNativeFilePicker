@@ -205,6 +205,12 @@ public static class NativeFilePicker
 		if( string.IsNullOrEmpty( extension ) )
 			return null;
 
+		if( extension.IndexOf( '*' ) >= 0 )
+		{
+			// So many users try to do this that it's now necessary to throw an exception for this particular scenario
+			throw new ArgumentException( "See: https://github.com/yasirkula/UnityNativeFilePicker#faq" );
+		}
+
 #if !UNITY_EDITOR && UNITY_ANDROID
 		return AJC.CallStatic<string>( "GetMimeTypeFromExtension", extension.ToLowerInvariant() );
 #elif !UNITY_EDITOR && UNITY_IOS
