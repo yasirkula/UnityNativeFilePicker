@@ -70,7 +70,7 @@ Declare the `WRITE_EXTERNAL_STORAGE` permission manually in your [**Plugins/Andr
 
 ### A. Importing Files
 
-`NativeFilePicker.PickFile( FilePickedCallback callback, string[] allowedFileTypes )`: prompts the user to pick a file from the available document providers.
+`NativeFilePicker.PickFile( FilePickedCallback callback, params string[] allowedFileTypes )`: prompts the user to pick a file from the available document providers.
 - This operation is **asynchronous**! After user picks a file or cancels the operation, the **callback** is called (on main thread). **FilePickedCallback** takes a *string* parameter which stores the path of the picked file, or *null* if nothing is picked
 - **allowedFileTypes** determines which file types are accepted. On Android, this is the *MIMEs* and on iOS, this is the *UTIs*. For example:
   - *PNG files:* `image/png` on Android and `public.png` on iOS
@@ -79,8 +79,9 @@ Declare the `WRITE_EXTERNAL_STORAGE` permission manually in your [**Plugins/Andr
   - On Android, see the following list for all available MIMEs (other MIMEs may not be supported on all devices): http://androidxref.com/4.4.4_r1/xref/frameworks/base/media/java/android/media/MediaFile.java#174
   - On iOS, see the following list for all available UTIs: https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html
   - Also see the *NativeFilePicker.ConvertExtensionToFileType* function
+  - If no file type is provided, all files can be selected
 
-`NativeFilePicker.PickMultipleFiles( MultipleFilesPickedCallback callback, string[] allowedFileTypes )`: prompts the user to pick one or more files.
+`NativeFilePicker.PickMultipleFiles( MultipleFilesPickedCallback callback, params string[] allowedFileTypes )`: prompts the user to pick one or more files.
 - **MultipleFilesPickedCallback** takes a *string[]* parameter which stores the path(s) of the picked file(s), or *null* if nothing is picked
 - Picking multiple files is only available on *Android 18+* and *iOS 11+*. Call *CanPickMultipleFiles()* to see if this feature is available
 

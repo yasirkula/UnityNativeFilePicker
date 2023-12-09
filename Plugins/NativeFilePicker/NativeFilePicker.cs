@@ -218,8 +218,15 @@ public static class NativeFilePicker
 	#region Import Functions
 	public static Permission PickFile( FilePickedCallback callback, params string[] allowedFileTypes )
 	{
+		// If no file type is specified, allow all file types
 		if( allowedFileTypes == null || allowedFileTypes.Length == 0 )
-			throw new ArgumentException( "Parameter 'allowedFileTypes' is null or empty!" );
+		{
+#if UNITY_ANDROID
+			allowedFileTypes = new string[] { "*/*" };
+#else
+			allowedFileTypes = new string[] { "public.item", "public.content" };
+#endif
+		}
 
 		Permission result = RequestPermission( true );
 		if( result == Permission.Granted && !IsFilePickerBusy() )
@@ -287,8 +294,15 @@ public static class NativeFilePicker
 
 	public static Permission PickMultipleFiles( MultipleFilesPickedCallback callback, params string[] allowedFileTypes )
 	{
+		// If no file type is specified, allow all file types
 		if( allowedFileTypes == null || allowedFileTypes.Length == 0 )
-			throw new ArgumentException( "Parameter 'allowedFileTypes' is null or empty!" );
+		{
+#if UNITY_ANDROID
+			allowedFileTypes = new string[] { "*/*" };
+#else
+			allowedFileTypes = new string[] { "public.item", "public.content" };
+#endif
+		}
 
 		Permission result = RequestPermission( true );
 		if( result == Permission.Granted && !IsFilePickerBusy() )
