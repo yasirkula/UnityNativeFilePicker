@@ -51,6 +51,7 @@ namespace NativeFilePickerNamespace
 			}
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnFilePicked( string path )
 		{
 			IsBusy = false;
@@ -65,6 +66,7 @@ namespace NativeFilePickerNamespace
 				_pickCallback( path );
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnMultipleFilesPicked( string paths )
 		{
 			IsBusy = false;
@@ -80,6 +82,7 @@ namespace NativeFilePickerNamespace
 				_pickCallbackMultiple( _paths );
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnFilesExported( string message )
 		{
 			IsBusy = false;
@@ -91,6 +94,7 @@ namespace NativeFilePickerNamespace
 				_exportCallback( message == "1" );
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnOperationCancelled( string message )
 		{
 			IsBusy = false;

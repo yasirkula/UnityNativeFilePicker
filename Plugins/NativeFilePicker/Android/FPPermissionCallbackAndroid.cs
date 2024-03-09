@@ -15,6 +15,7 @@ namespace NativeFilePickerNamespace
 			this.threadLock = threadLock;
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnPermissionResult( int result )
 		{
 			Result = result;
@@ -37,6 +38,7 @@ namespace NativeFilePickerNamespace
 			callbackHelper = new GameObject( "FPCallbackHelper" ).AddComponent<FPCallbackHelper>();
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnPermissionResult( int result )
 		{
 			callbackHelper.CallOnMainThread( () => callback( (NativeFilePicker.Permission) result ) );

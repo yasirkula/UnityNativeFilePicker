@@ -20,11 +20,13 @@ namespace NativeFilePickerNamespace
 			callbackHelper = new GameObject( "FPCallbackHelper" ).AddComponent<FPCallbackHelper>();
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnFilePicked( string path )
 		{
 			callbackHelper.CallOnMainThread( () => pickCallback( !string.IsNullOrEmpty( path ) ? path : null ) );
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnMultipleFilesPicked( string paths )
 		{
 			string[] result = null;
@@ -59,6 +61,7 @@ namespace NativeFilePickerNamespace
 			callbackHelper.CallOnMainThread( () => pickCallbackMultiple( ( result != null && result.Length > 0 ) ? result : null ) );
 		}
 
+		[UnityEngine.Scripting.Preserve]
 		public void OnFilesExported( bool result )
 		{
 			callbackHelper.CallOnMainThread( () => exportCallback( result ) );
