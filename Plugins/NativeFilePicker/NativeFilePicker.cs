@@ -252,12 +252,12 @@ public static class NativeFilePicker
 					else if( allowedFileTypes[i] == "video/*" )
 					{
 						editorFilters[i * 2] = "Video files";
-						editorFilters[i * 2 + 1] = "mp4,mov,wav,avi";
+						editorFilters[i * 2 + 1] = "mp4,mov,webm,avi";
 					}
 					else if( allowedFileTypes[i] == "audio/*" )
 					{
 						editorFilters[i * 2] = "Audio files";
-						editorFilters[i * 2 + 1] = "mp3,aac,flac";
+						editorFilters[i * 2 + 1] = "mp3,wav,aac,flac";
 					}
 					else
 					{
