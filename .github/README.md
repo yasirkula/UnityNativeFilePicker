@@ -8,7 +8,7 @@
 
 **[GitHub Sponsors ☕](https://github.com/sponsors/yasirkula)**
 
-This plugin helps you import/export files from/to various document providers on Android & iOS. On iOS, it uses **UIDocumentPickerViewController** which has the following requirements:
+This plugin helps you import/export files from/to various document providers on Android & iOS (other platforms aren't supported). On iOS, it uses **UIDocumentPickerViewController** which has the following requirements:
 
 - iOS 8 or later
 - an Apple Developer Program account (signing the app with a free account won't work)
@@ -49,6 +49,10 @@ There are two ways to set up the plugin on iOS:
 - **How can I fetch the path of the saved file or the original path of the picked file?**
 
 You can't. The abstraction layers used on each platform deliberately don't return raw file paths.
+
+- **Plugin doesn't work in a Windows/Mac/Linux build**
+
+Only Android & iOS platforms are supported. Editor functionality is for preview purposes only and uses Unity's [Editor-only API](https://docs.unity3d.com/ScriptReference/EditorUtility.OpenFilePanelWithFilters.html).
 
 - **Can't import/export files, it says "java.lang.ClassNotFoundException: com.yasirkula.unity.NativeFilePicker" in Logcat**
 
