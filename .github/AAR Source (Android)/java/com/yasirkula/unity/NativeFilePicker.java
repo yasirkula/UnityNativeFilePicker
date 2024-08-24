@@ -13,14 +13,13 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.webkit.MimeTypeMap;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Locale;
 
 public class NativeFilePicker
 {
 	public static boolean UseDefaultFilePickerApp = false; // false: Intent.createChooser is used to select the file picker app
+	public static boolean PermissionFreeMode = false; // true: No permission will be asked (use at your own risk)
 
 	public static void PickFiles( Context context, final NativeFilePickerResultReceiver resultReceiver, final boolean selectMultiple, final String savePath, final String[] mimes, final String title )
 	{
@@ -74,6 +73,9 @@ public class NativeFilePicker
 	@TargetApi( Build.VERSION_CODES.M )
 	public static int CheckPermission( Context context, final boolean readPermissionOnly )
 	{
+		if( PermissionFreeMode )
+			return 1;
+
 		if( Build.VERSION.SDK_INT < Build.VERSION_CODES.M )
 			return 1;
 
