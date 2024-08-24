@@ -73,7 +73,10 @@ public class NativeFilePickerPickFragment extends Fragment
 		super.onCreate( savedInstanceState );
 
 		if( resultReceiver == null )
+		{
+			Log.e( "Unity", "NativeFilePickerPickFragment.mediaReceiver became null in onCreate!" );
 			onActivityResult( PICK_FILE_CODE, Activity.RESULT_CANCELED, null );
+		}
 		else
 		{
 			ArrayList<String> mimes = getArguments().getStringArrayList( MIMES_ID );
@@ -181,7 +184,7 @@ public class NativeFilePickerPickFragment extends Fragment
 		NativeFilePickerPickResultFragment resultFragment = null;
 
 		if( resultReceiver == null )
-			Log.d( "Unity", "NativeFilePickerPickFragment.resultReceiver became null!" );
+			Log.d( "Unity", "NativeFilePickerPickFragment.resultReceiver became null in onActivityResult!" );
 		else if( resultCode != Activity.RESULT_OK || data == null )
 		{
 			if( !selectMultiple )

@@ -50,9 +50,11 @@ public class NativeFilePickerPickResultOperation
 		{
 			if( !selectMultiple || data.getClipData() == null )
 			{
-				unityResult = getPathFromURI( data.getData() );
-				if( unityResult == null || ( unityResult.length() > 0 && !( new File( unityResult ).exists() ) ) )
-					unityResult = "";
+				String _unityResult = getPathFromURI( data.getData() );
+				if( _unityResult != null && _unityResult.length() > 0 && new File( _unityResult ).exists() )
+					unityResult = _unityResult;
+
+				Log.d( "Unity", "NativeFilePickerPickResultOperation: " + _unityResult );
 			}
 			else
 			{
@@ -73,6 +75,8 @@ public class NativeFilePickerPickResultOperation
 						else
 							unityResult += ">" + _unityResult;
 					}
+
+					Log.d( "Unity", "NativeFilePickerPickResultOperation: " + _unityResult );
 				}
 			}
 		}
@@ -106,7 +110,7 @@ public class NativeFilePickerPickResultOperation
 		sentResult = true;
 
 		if( mediaReceiver == null )
-			Log.d( "Unity", "NativeFilePickerPickResultOperation.mediaReceiver became null!" );
+			Log.d( "Unity", "NativeFilePickerPickResultOperation.mediaReceiver became null in sendResultToUnity!" );
 		else
 		{
 			if( selectMultiple )
@@ -137,6 +141,7 @@ public class NativeFilePickerPickResultOperation
 			}
 			catch( Exception e )
 			{
+				Log.e( "Unity", "Media uri isn't accessible via File API: " + uri, e );
 			}
 			finally
 			{
@@ -214,7 +219,10 @@ public class NativeFilePickerPickResultOperation
 		{
 			InputStream input = resolver.openInputStream( uri );
 			if( input == null )
+			{
+				Log.w( "Unity", "Couldn't open input stream: " + uri );
 				return null;
+			}
 
 			if( fileSize < 0 )
 			{
@@ -289,6 +297,7 @@ public class NativeFilePickerPickResultOperation
 					savedFiles.add( fullName );
 				}
 
+				Log.d( "Unity", "Copied media from " + uri + " to: " + tempFile.getAbsolutePath() );
 				return tempFile.getAbsolutePath();
 			}
 			finally
