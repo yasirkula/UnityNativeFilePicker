@@ -127,6 +127,13 @@ namespace NativeFilePickerNamespace
 						customTypeDict.SetString( "UTTypeIdentifier", customType.identifier );
 						customTypeDict.SetString( "UTTypeDescription", customType.description );
 
+						if(customTypes[i].iconPath != null && customTypes[i].iconPath.Length > 0)
+						{
+							PlistElementArray icons = customTypeDict.CreateArray( "UTTypeIconFiles" );
+							for( int j = 0; j < customType.iconPath.Length; j++ )
+								icons.AddString( customType.iconPath[j] );
+						}
+
 						PlistElementArray conformsTo = customTypeDict.CreateArray( "UTTypeConformsTo" );
 						for( int j = 0; j < customType.conformsTo.Length; j++ )
 							conformsTo.AddString( customType.conformsTo[j] );
