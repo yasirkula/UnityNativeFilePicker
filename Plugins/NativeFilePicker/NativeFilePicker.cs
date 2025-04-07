@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using UnityEngine;
-#if UNITY_2018_4_OR_NEWER && !NATIVE_FILE_PICKER_DISABLE_ASYNC_FUNCTIONS
 using System.Threading.Tasks;
-#endif
 #if UNITY_ANDROID || UNITY_IOS
 using NativeFilePickerNamespace;
 #endif
@@ -83,67 +81,31 @@ public static class NativeFilePicker
 #endif
 
 	#region Runtime Permissions
-	public static Permission CheckPermission( bool readPermissionOnly = false )
+	public static bool CheckPermission( bool readPermissionOnly = false )
 	{
 #if !UNITY_EDITOR && UNITY_ANDROID
-		Permission result = (Permission) AJC.CallStatic<int>( "CheckPermission", Context, readPermissionOnly );
-		if( result == Permission.Denied && (Permission) PlayerPrefs.GetInt( "NativeFilePickerPermission", (int) Permission.ShouldAsk ) == Permission.ShouldAsk )
-			result = Permission.ShouldAsk;
-
-		return result;
+		return AJC.CallStatic<int>( "CheckPermission", Context, readPermissionOnly ) == 1;
 #else
-		return Permission.Granted;
-#endif
-	}
-
-	public static Permission RequestPermission( bool readPermissionOnly = false )
-	{
-		// Don't block the main thread if the permission is already granted
-		if( CheckPermission( readPermissionOnly ) == Permission.Granted )
-			return Permission.Granted;
-
-#if !UNITY_EDITOR && UNITY_ANDROID
-		object threadLock = new object();
-		lock( threadLock )
-		{
-			FPPermissionCallbackAndroid nativeCallback = new FPPermissionCallbackAndroid( threadLock );
-
-			AJC.CallStatic( "RequestPermission", Context, nativeCallback, readPermissionOnly, (int) Permission.ShouldAsk );
-
-			if( nativeCallback.Result == -1 )
-				System.Threading.Monitor.Wait( threadLock );
-
-			if( (Permission) nativeCallback.Result != Permission.ShouldAsk && PlayerPrefs.GetInt( "NativeFilePickerPermission", -1 ) != nativeCallback.Result )
-			{
-				PlayerPrefs.SetInt( "NativeFilePickerPermission", nativeCallback.Result );
-				PlayerPrefs.Save();
-			}
-
-			return (Permission) nativeCallback.Result;
-		}
-#else
-		return Permission.Granted;
+		return true;
 #endif
 	}
 
 	public static void RequestPermissionAsync( PermissionCallback callback, bool readPermissionOnly = false )
 	{
 #if !UNITY_EDITOR && UNITY_ANDROID
-		FPPermissionCallbackAsyncAndroid nativeCallback = new FPPermissionCallbackAsyncAndroid( callback );
-		AJC.CallStatic( "RequestPermission", Context, nativeCallback, readPermissionOnly, (int) Permission.ShouldAsk );
+		FPPermissionCallbackAndroid nativeCallback = new( callback );
+		AJC.CallStatic( "RequestPermission", Context, nativeCallback, readPermissionOnly );
 #else
 		callback( Permission.Granted );
 #endif
 	}
 
-#if UNITY_2018_4_OR_NEWER && !NATIVE_FILE_PICKER_DISABLE_ASYNC_FUNCTIONS
 	public static Task<Permission> RequestPermissionAsync( bool readPermissionOnly = false )
 	{
 		TaskCompletionSource<Permission> tcs = new TaskCompletionSource<Permission>();
 		RequestPermissionAsync( ( permission ) => tcs.SetResult( permission ), readPermissionOnly );
 		return tcs.Task;
 	}
-#endif
 
 	public static void OpenSettings()
 	{
@@ -222,7 +184,7 @@ public static class NativeFilePicker
 	#endregion
 
 	#region Import Functions
-	public static Permission PickFile( FilePickedCallback callback, params string[] allowedFileTypes )
+	public static void PickFile( FilePickedCallback callback, params string[] allowedFileTypes )
 	{
 		// If no file type is specified, allow all file types
 		if( allowedFileTypes == null || allowedFileTypes.Length == 0 )
@@ -234,9 +196,14 @@ public static class NativeFilePicker
 #endif
 		}
 
-		Permission result = RequestPermission( true );
-		if( result == Permission.Granted && !IsFilePickerBusy() )
+		RequestPermissionAsync( ( permission ) =>
 		{
+			if( permission != Permission.Granted || IsFilePickerBusy() )
+			{
+				callback?.Invoke( null );
+				return;
+			}
+
 #if UNITY_EDITOR
 			// Accept Android and iOS UTIs when possible, for user's convenience
 			string[] editorFilters = new string[allowedFileTypes.Length * 2];
@@ -293,12 +260,10 @@ public static class NativeFilePicker
 			if( callback != null )
 				callback( null );
 #endif
-		}
-
-		return result;
+		}, true );
 	}
 
-	public static Permission PickMultipleFiles( MultipleFilesPickedCallback callback, params string[] allowedFileTypes )
+	public static void PickMultipleFiles( MultipleFilesPickedCallback callback, params string[] allowedFileTypes )
 	{
 		// If no file type is specified, allow all file types
 		if( allowedFileTypes == null || allowedFileTypes.Length == 0 )
@@ -310,9 +275,14 @@ public static class NativeFilePicker
 #endif
 		}
 
-		Permission result = RequestPermission( true );
-		if( result == Permission.Granted && !IsFilePickerBusy() )
+		RequestPermissionAsync( ( permission ) =>
 		{
+			if( permission != Permission.Granted || IsFilePickerBusy() )
+			{
+				callback?.Invoke( null );
+				return;
+			}
+
 			if( CanPickMultipleFiles() )
 			{
 #if !UNITY_EDITOR && UNITY_ANDROID
@@ -324,21 +294,24 @@ public static class NativeFilePicker
 			}
 			else if( callback != null )
 				callback( null );
-		}
-
-		return result;
+		}, true );
 	}
 	#endregion
 
 	#region Export Functions
-	public static Permission ExportFile( string filePath, FilesExportedCallback callback = null )
+	public static void ExportFile( string filePath, FilesExportedCallback callback = null )
 	{
 		if( string.IsNullOrEmpty( filePath ) )
 			throw new ArgumentException( "Parameter 'filePath' is null or empty!" );
 
-		Permission result = RequestPermission( false );
-		if( result == Permission.Granted && !IsFilePickerBusy() )
+		RequestPermissionAsync( ( permission ) =>
 		{
+			if( permission != Permission.Granted || IsFilePickerBusy() )
+			{
+				callback?.Invoke( false );
+				return;
+			}
+
 			if( CanExportFiles() )
 			{
 #if UNITY_EDITOR
@@ -380,19 +353,22 @@ public static class NativeFilePicker
 			}
 			else if( callback != null )
 				callback( false );
-		}
-
-		return result;
+		}, false );
 	}
 
-	public static Permission ExportMultipleFiles( string[] filePaths, FilesExportedCallback callback = null )
+	public static void ExportMultipleFiles( string[] filePaths, FilesExportedCallback callback = null )
 	{
 		if( filePaths == null || filePaths.Length == 0 )
 			throw new ArgumentException( "Parameter 'filePaths' is null or empty!" );
 
-		Permission result = RequestPermission( false );
-		if( result == Permission.Granted && !IsFilePickerBusy() )
+		RequestPermissionAsync( ( permission ) =>
 		{
+			if( permission != Permission.Granted || IsFilePickerBusy() )
+			{
+				callback?.Invoke( false );
+				return;
+			}
+
 			if( CanExportMultipleFiles() )
 			{
 #if UNITY_EDITOR
@@ -429,9 +405,7 @@ public static class NativeFilePicker
 			}
 			else if( callback != null )
 				callback( false );
-		}
-
-		return result;
+		}, false );
 	}
 	#endregion
 }

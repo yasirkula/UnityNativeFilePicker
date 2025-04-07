@@ -1,10 +1,6 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 
-#ifdef UNITY_4_0 || UNITY_5_0
-#import "iPhone_View.h"
-#else
 extern UIViewController* UnityGetGLViewController();
-#endif
 
 @interface UNativeFilePicker:NSObject
 + (void)pickFiles:(BOOL)allowMultipleSelection withUTIs:(NSArray<NSString *> *)allowedUTIs;
@@ -25,15 +21,12 @@ static int filePickerState = 0; // 0 -> none, 1 -> showing, 2 -> finished
 	filePicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:allowedUTIs inMode:UIDocumentPickerModeImport];
 	filePicker.delegate = (id) self;
 	
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-	if( [[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] != NSOrderedAscending )
+	if( @available(iOS 11.0, *) )
 		filePicker.allowsMultipleSelection = allowMultipleSelection;
-#endif
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+	
 	// Show file extensions if possible
-	if( [[[UIDevice currentDevice] systemVersion] compare:@"13.0" options:NSNumericSearch] != NSOrderedAscending )
+	if( @available(iOS 13.0, *) )
 		filePicker.shouldShowFileExtensions = YES;
-#endif
 	
 	pickingMultipleFiles = allowMultipleSelection;
 	filePickerState = 1;
@@ -45,20 +38,16 @@ static int filePickerState = 0; // 0 -> none, 1 -> showing, 2 -> finished
 {
 	if( paths != nil && [paths count] > 0 )
 	{
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-		if ([paths count] > 1 && [[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] != NSOrderedAscending)
+		if ([paths count] > 1 && [self canPickMultipleFiles] == 1)
 			filePicker = [[UIDocumentPickerViewController alloc] initWithURLs:paths inMode:UIDocumentPickerModeExportToService];
 		else
-#endif
 			filePicker = [[UIDocumentPickerViewController alloc] initWithURL:paths[0] inMode:UIDocumentPickerModeExportToService];
 		
 		filePicker.delegate = (id) self;
 		
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 		// Show file extensions if possible
-		if( [[[UIDevice currentDevice] systemVersion] compare:@"13.0" options:NSNumericSearch] != NSOrderedAscending )
+		if( @available(iOS 13.0, *) )
 			filePicker.shouldShowFileExtensions = YES;
-#endif
 		
 		filePickerState = 1;
 		[UnityGetGLViewController() presentViewController:filePicker animated:NO completion:^{ filePickerState = 0; }];
@@ -67,10 +56,8 @@ static int filePickerState = 0; // 0 -> none, 1 -> showing, 2 -> finished
 
 + (int)canPickMultipleFiles
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-	if( [[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] != NSOrderedAscending )
+	if( @available(iOS 11.0, *) )
 		return 1;
-#endif
 	
 	return 0;
 }

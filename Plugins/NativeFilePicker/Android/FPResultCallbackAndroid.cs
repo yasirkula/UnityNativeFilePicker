@@ -17,7 +17,7 @@ namespace NativeFilePickerNamespace
 			this.pickCallbackMultiple = pickCallbackMultiple;
 			this.exportCallback = exportCallback;
 
-			callbackHelper = new GameObject( "FPCallbackHelper" ).AddComponent<FPCallbackHelper>();
+			callbackHelper = FPCallbackHelper.Create( true );
 		}
 
 		[UnityEngine.Scripting.Preserve]

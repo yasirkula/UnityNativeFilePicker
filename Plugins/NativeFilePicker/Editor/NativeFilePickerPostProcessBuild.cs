@@ -47,7 +47,6 @@ namespace NativeFilePickerNamespace
 			File.WriteAllText( SAVE_PATH, JsonUtility.ToJson( this, true ) );
 		}
 
-#if UNITY_2018_3_OR_NEWER
 		[SettingsProvider]
 		public static SettingsProvider CreatePreferencesGUI()
 		{
@@ -57,11 +56,7 @@ namespace NativeFilePickerNamespace
 				keywords = new System.Collections.Generic.HashSet<string>() { "Native", "File", "Picker", "Android", "iOS" }
 			};
 		}
-#endif
 
-#if !UNITY_2018_3_OR_NEWER
-		[PreferenceItem( "Native File Picker" )]
-#endif
 		public static void PreferencesGUI()
 		{
 			EditorGUI.BeginChangeCheck();
@@ -77,27 +72,6 @@ namespace NativeFilePickerNamespace
 	public class NativeFilePickerPostProcessBuild
 	{
 #if UNITY_IOS
-#if !UNITY_2017_1_OR_NEWER
-		private const string ICLOUD_ENTITLEMENTS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-			"<!DOCTYPE plist PUBLIC \" -//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">" +
-			"<plist version=\"1.0\">" +
-			"<dict>" +
-			"<key>com.apple.developer.icloud-container-identifiers</key>" +
-			"<array>" +
-			"<string>iCloud.$(CFBundleIdentifier)</string>" +
-			"</array>" +
-			"<key>com.apple.developer.icloud-services</key>" +
-			"<array>" +
-			"<string>CloudDocuments</string>" +
-			"</array>" +
-			"<key>com.apple.developer.ubiquity-container-identifiers</key>" +
-			"<array>" +
-			"<string>iCloud.$(CFBundleIdentifier)</string>" +
-			"</array>" +
-			"</dict>" +
-			"</plist>";
-#endif
-
 #pragma warning disable 0162
 		[PostProcessBuild]
 		public static void OnPostprocessBuild( BuildTarget target, string buildPath )
@@ -152,48 +126,21 @@ namespace NativeFilePickerNamespace
 				PBXProject pbxProject = new PBXProject();
 				pbxProject.ReadFromFile( pbxProjectPath );
 
-#if UNITY_2019_3_OR_NEWER
 				string targetGUID = pbxProject.GetUnityFrameworkTargetGuid();
-#else
-				string targetGUID = pbxProject.TargetGuidByName( PBXProject.GetUnityTargetName() );
-#endif
-
 				if( Settings.Instance.AutoSetupFrameworks )
 				{
-					pbxProject.AddBuildProperty( targetGUID, "OTHER_LDFLAGS", "-framework MobileCoreServices" );
-					pbxProject.AddBuildProperty( targetGUID, "OTHER_LDFLAGS", "-framework CloudKit" );
+					pbxProject.AddFrameworkToProject( targetGUID, "MobileCoreServices.framework", false );
+					pbxProject.AddFrameworkToProject( targetGUID, "CloudKit.framework", false );
 				}
-
-#if !UNITY_2017_1_OR_NEWER
-				if( Settings.Instance.AutoSetupiCloud )
-				{
-					// Add iCloud capability without Cloud Build support on 5.6 or earlier
-					string entitlementsPath = Path.Combine( buildPath, "iCloud.entitlements" );
-					File.WriteAllText( entitlementsPath, ICLOUD_ENTITLEMENTS );
-					pbxProject.AddFile( entitlementsPath, Path.GetFileName( entitlementsPath ) );
-					pbxProject.AddBuildProperty( targetGUID, "CODE_SIGN_ENTITLEMENTS", entitlementsPath );
-				}
-#endif
 
 				File.WriteAllText( pbxProjectPath, pbxProject.WriteToString() );
 
-#if UNITY_2017_1_OR_NEWER
 				if( Settings.Instance.AutoSetupiCloud )
 				{
-					// Add iCloud capability with Cloud Build support on 2017.1+
-#if UNITY_2019_3_OR_NEWER
 					ProjectCapabilityManager manager = new ProjectCapabilityManager( pbxProjectPath, "iCloud.entitlements", "Unity-iPhone" );
-#else
-					ProjectCapabilityManager manager = new ProjectCapabilityManager( pbxProjectPath, "iCloud.entitlements", PBXProject.GetUnityTargetName() );
-#endif
-#if UNITY_2018_3_OR_NEWER
 					manager.AddiCloud( false, true, false, true, null );
-#else
-					manager.AddiCloud( false, true, true, null );
-#endif
 					manager.WriteToFile();
 				}
-#endif
 			}
 		}
 
@@ -211,18 +158,9 @@ namespace NativeFilePickerNamespace
 				PBXProject pbxProject = new PBXProject();
 				pbxProject.ReadFromFile( pbxProjectPath );
 
-#if UNITY_2019_3_OR_NEWER
 				string targetGUID = pbxProject.GetUnityFrameworkTargetGuid();
-#else
-				string targetGUID = pbxProject.TargetGuidByName( PBXProject.GetUnityTargetName() );
-#endif
-
-#if UNITY_2018_2_OR_NEWER
 				if( string.IsNullOrEmpty( pbxProject.GetBuildPropertyForAnyConfig( targetGUID, "PRODUCT_BUNDLE_IDENTIFIER" ) ) )
 					pbxProject.AddBuildProperty( targetGUID, "PRODUCT_BUNDLE_IDENTIFIER", PlayerSettings.applicationIdentifier );
-#else
-				pbxProject.SetBuildProperty( targetGUID, "PRODUCT_BUNDLE_IDENTIFIER", PlayerSettings.applicationIdentifier );
-#endif
 
 				File.WriteAllText( pbxProjectPath, pbxProject.WriteToString() );
 			}
