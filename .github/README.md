@@ -22,8 +22,8 @@ There are 5 ways to install this plugin:
 - import [NativeFilePicker.unitypackage](https://github.com/yasirkula/UnityNativeFilePicker/releases) via *Assets-Import Package*
 - clone/[download](https://github.com/yasirkula/UnityNativeFilePicker/archive/master.zip) this repository and move the *Plugins* folder to your Unity project's *Assets* folder
 - import it from [Asset Store](https://assetstore.unity.com/packages/tools/integration/ios-native-file-picker-173238)
-- *(via Package Manager)* add the following line to *Packages/manifest.json*:
-  - `"com.yasirkula.nativefilepicker": "https://github.com/yasirkula/UnityNativeFilePicker.git",`
+- *(via Package Manager)* click the + button and install the package from the following git URL:
+  - `https://github.com/yasirkula/UnityNativeFilePicker.git`
 - *(via [OpenUPM](https://openupm.com))* after installing [openupm-cli](https://github.com/openupm/openupm-cli), run the following command:
   - `openupm add com.yasirkula.nativefilepicker`
 
