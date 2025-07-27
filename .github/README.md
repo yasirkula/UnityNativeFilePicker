@@ -80,7 +80,7 @@ Declare the `WRITE_EXTERNAL_STORAGE` permission manually in your **Plugins/Andro
   - *PNG files:* `image/png` on Android and `public.png` on iOS
   - *Image files (png, jpeg, tiff, etc.):* `image/*` on Android and `public.image` on iOS
   - *PDF files:* `application/pdf` on Android and `com.adobe.pdf` on iOS
-  - On Android, see the following list for all available MIMEs (other MIMEs may not be supported on all devices): http://androidxref.com/4.4.4_r1/xref/frameworks/base/media/java/android/media/MediaFile.java#174
+  - On Android, see the following list for all available MIMEs (other MIMEs may not be supported on all devices): https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/media/java/android/media/MediaFile.java#102
   - On iOS, see the following list for all available UTIs: https://developer.apple.com/library/archive/documentation/Miscellaneous/Reference/UTIRef/Articles/System-DeclaredUniformTypeIdentifiers.html
   - Also see the *NativeFilePicker.ConvertExtensionToFileType* function
   - If no file type is provided, all files can be selected
