@@ -66,6 +66,10 @@ See: https://forum.unity.com/threads/native-file-picker-for-android-ios-open-sou
 
 Make sure that you've set the **Write Permission** to **External (SDCard)** in *Player Settings*.
 
+- **Save button is disabled when I try to export files on iOS 26.3**
+
+This is reportedly fixed by normalizing the filename: https://discussions.unity.com/t/native-file-picker-for-android-ios-open-source/796017/211
+
 - **NativeFilePicker functions return Permission.Denied even though I've set "Write Permission" to "External (SDCard)"**
 
 Declare the `WRITE_EXTERNAL_STORAGE` permission manually in your **Plugins/Android/AndroidManifest.xml** with the `tools:node="replace"` attribute as follows: `<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="replace"/>`.
