@@ -24,10 +24,8 @@ namespace NativeFilePickerNamespace
 
 		private const string INITIAL_SAVE_PATH = "Assets/Plugins/NativeFilePicker/NativeFilePickerCustomTypes.asset";
 
-#pragma warning disable 0649
 		[SerializeField]
 		private TypeHolder[] customTypes;
-#pragma warning restore 0649
 
 		[MenuItem( "Window/NativeFilePicker Custom Types" )]
 		private static void InspectCustomTypes()

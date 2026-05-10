@@ -1,7 +1,12 @@
 {
   "name": "com.yasirkula.nativefilepicker",
   "displayName": "Native File Picker",
-  "version": "1.4.1",
+  "version": "1.4.2",
+  "author": {
+    "name": "yasirkula",
+    "email": "yasirkula@gmail.com",
+    "url": "https://github.com/yasirkula"
+  },
   "documentationUrl": "https://github.com/yasirkula/UnityNativeFilePicker",
   "changelogUrl": "https://github.com/yasirkula/UnityNativeFilePicker/releases",
   "licensesUrl": "https://github.com/yasirkula/UnityNativeFilePicker/blob/master/LICENSE.txt",

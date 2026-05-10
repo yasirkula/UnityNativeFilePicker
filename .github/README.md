@@ -54,6 +54,10 @@ You can't. The abstraction layers used on each platform deliberately don't retur
 
 Only Android & iOS platforms are supported. Editor functionality is for preview purposes only and uses Unity's [Editor-only API](https://docs.unity3d.com/ScriptReference/EditorUtility.OpenFilePanelWithFilters.html).
 
+- **Android build fails with error message "D8: java.lang.NullPointerException Failed to transform NativeFilePicker-.aar"**
+
+The plugin is using "Gradle version" `7.5.1` and "Android Gradle plug-in version" `7.4.2`. Make sure your Unity version is compatible: https://docs.unity3d.com/2021.3/Documentation/Manual/android-gradle-overview.html
+
 - **Can't import/export files, it says "java.lang.ClassNotFoundException: com.yasirkula.unity.NativeFilePicker" in Logcat**
 
 If you are sure that your plugin is up-to-date, then enable **Custom Proguard File** option from *Player Settings* and add the following line to that file: `-keep class com.yasirkula.unity.* { *; }`

@@ -72,7 +72,6 @@ namespace NativeFilePickerNamespace
 	public class NativeFilePickerPostProcessBuild
 	{
 #if UNITY_IOS
-#pragma warning disable 0162
 		[PostProcessBuild]
 		public static void OnPostprocessBuild( BuildTarget target, string buildPath )
 		{
@@ -193,7 +192,6 @@ namespace NativeFilePickerNamespace
 				}
 			}
 		}
-#pragma warning restore 0162
 #endif
 	}
 }
