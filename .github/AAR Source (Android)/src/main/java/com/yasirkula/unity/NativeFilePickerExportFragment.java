@@ -128,7 +128,7 @@ public class NativeFilePickerExportFragment extends Fragment
 
 			try
 			{
-				result &= WriteFileToStream( file, getActivity().getContentResolver().openOutputStream( safFile.getUri() ) );
+				result &= WriteFileToStream( file, getActivity().getContentResolver().openOutputStream( safFile.getUri(), "rwt" ) );
 			}
 			catch( Exception e )
 			{
@@ -204,7 +204,7 @@ public class NativeFilePickerExportFragment extends Fragment
 			{
 				try
 				{
-					result = WriteFileToStream( file, getActivity().getContentResolver().openOutputStream( data.getData() ) );
+					result = WriteFileToStream( file, getActivity().getContentResolver().openOutputStream( data.getData(), "rwt" ) );
 				}
 				catch( Exception e )
 				{
