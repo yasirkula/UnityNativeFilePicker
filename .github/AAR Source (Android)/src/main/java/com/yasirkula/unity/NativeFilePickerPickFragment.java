@@ -52,6 +52,7 @@ public class NativeFilePickerPickFragment extends Fragment
 
 	public static boolean tryPreserveFilenames = true; // When enabled, app's cache will fill more quickly since most of the picked files will have a unique filename (less chance of overwriting old files)
 	public static boolean showProgressbar = true; // When enabled, a progressbar will be displayed while selected file(s) are copied (if necessary) to the destination directory
+	public static boolean forceFocusUnityActivityOnComplete = false; // When enabled, the Unity activity will forcefully be focused after a file is picked. Added for VR compatibility: https://github.com/yasirkula/UnityNativeFilePicker/issues/59#issuecomment-4815746727
 
 	private final NativeFilePickerResultReceiver resultReceiver;
 	private boolean selectMultiple;
@@ -180,6 +181,14 @@ public class NativeFilePickerPickFragment extends Fragment
 	{
 		if( requestCode != PICK_FILE_CODE )
 			return;
+
+		if( forceFocusUnityActivityOnComplete )
+		{
+			Intent intent = new Intent( getContext(), getContext().getClass() );
+			intent.addFlags( Intent.FLAG_ACTIVITY_REORDER_TO_FRONT );
+			startActivity( intent );
+			Log.d( "Unity", "NativeFilePicker used FLAG_ACTIVITY_REORDER_TO_FRONT to bring Unity activity to front." );
+		}
 
 		NativeFilePickerPickResultFragment resultFragment = null;
 
