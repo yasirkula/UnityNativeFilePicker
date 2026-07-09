@@ -20,6 +20,8 @@ namespace NativeFilePickerNamespace
 			public string[] conformsTo;
 			[Tooltip( "Extension(s) associated with this type (don't include the period; i.e. use myextension instead of .myextension)" )]
 			public string[] extensions;
+			[Tooltip( "Path to icon file in your XCode project. (Optional)" )]
+			public string[] iconPath;
 		}
 
 		private const string INITIAL_SAVE_PATH = "Assets/Plugins/NativeFilePicker/NativeFilePickerCustomTypes.asset";
