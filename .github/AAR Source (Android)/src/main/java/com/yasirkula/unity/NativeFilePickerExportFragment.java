@@ -147,7 +147,7 @@ public class NativeFilePickerExportFragment extends Fragment
 			InputStream in = new FileInputStream( file );
 			try
 			{
-				byte[] buf = new byte[1024];
+				byte[] buf = new byte[NativeFilePicker.IOBufferSize];
 				int len;
 				while( ( len = in.read( buf ) ) > 0 )
 					out.write( buf, 0, len );

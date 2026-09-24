@@ -260,7 +260,7 @@ public class NativeFilePickerPickResultOperation
 				output = new FileOutputStream( tempFile, false );
 				progress = ( fileSize > 0 ) ? 0 : -1;
 
-				byte[] buf = new byte[4096];
+				byte[] buf = new byte[NativeFilePicker.IOBufferSize];
 				int len;
 				while( ( len = input.read( buf ) ) > 0 )
 				{

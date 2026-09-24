@@ -20,6 +20,7 @@ public class NativeFilePicker
 {
 	public static boolean UseDefaultFilePickerApp = false; // false: Intent.createChooser is used to select the file picker app
 	public static boolean PermissionFreeMode = false; // true: No permission will be asked (use at your own risk)
+	public static int IOBufferSize = 262144; // 256 KB by default
 
 	public static void PickFiles( Context context, final NativeFilePickerResultReceiver resultReceiver, final boolean selectMultiple, final String savePath, final String[] mimes, final String title )
 	{
